@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة استعلام نتائج الطلاب المتكاملة</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Temporarily disabled to fix login issue -->
+    <!-- <script src="db-helper.js"></script> -->
     <style>
         * {
             margin: 0;
@@ -37,7 +40,7 @@
             background: white;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -79,7 +82,7 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .header {
@@ -101,7 +104,7 @@
             width: 80px;
             height: 80px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header-text h1 {
@@ -170,7 +173,8 @@
             color: #333;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -306,7 +310,7 @@
             border: none;
             border-radius: 10px;
             font-size: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .search-input button {
@@ -344,7 +348,7 @@
             border: 2px solid #e1e5e9;
             border-radius: 10px;
             font-size: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s;
         }
 
@@ -426,7 +430,7 @@
             margin-top: 20px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -439,7 +443,8 @@
 
             .search-input-field {
                 min-width: 100%;
-                font-size: 16px; /* Prevent zoom on iOS */
+                font-size: 16px;
+                /* Prevent zoom on iOS */
             }
 
             .search-button {
@@ -529,7 +534,8 @@
             margin-bottom: 10px;
         }
 
-        .subject-input input, .subject-input select {
+        .subject-input input,
+        .subject-input select {
             padding: 8px;
         }
 
@@ -1153,6 +1159,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
@@ -1175,14 +1182,24 @@
                         <p>المعهد العالي للعلوم والتقنية الجفرة بسوكنة</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="danger" style="float: left;">تسجيل خروج</button>
+                <div style="float: left; display: flex; gap: 10px; align-items: center;">
+                    <button onclick="exportStudentsJSON()" class="primary" style="font-size: 14px; padding: 10px 16px;">
+                        📥 تصدير البيانات (JSON)
+                    </button>
+                    <button onclick="importStudentsJSON()" class="warning" style="font-size: 14px; padding: 10px 16px;">
+                        📤 استيراد البيانات (JSON)
+                    </button>
+                    <button onclick="logout()" class="danger">تسجيل خروج</button>
+                </div>
             </div>
 
             <div class="tabs">
                 <button class="tab active" onclick="showTab('add-student')">إضافة طالب</button>
                 <button class="tab" onclick="showTab('list')">📋 قائمة الطلاب</button>
                 <button class="tab" onclick="showTab('search-student')">🔍 بحث طالب</button>
-                <button class="tab" onclick="generateStudentSearchLink()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">🔗 رابط البحث للطلاب</button>
+                <button class="tab" onclick="generateStudentSearchLink()"
+                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">🔗
+                    رابط البحث للطلاب</button>
                 <button class="tab" onclick="showTab('block-student')">🚫 حجب نتيجة</button>
                 <button class="tab" onclick="showTab('print-all')">🖨️ طباعة الكل</button>
                 <button class="tab" onclick="showTab('excel')">استيراد وتصدير Excel</button>
@@ -1196,7 +1213,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>الرقم الدراسي</label>
-                            <input type="text" id="studentId" placeholder="مثال: SE242001" onchange="autoLoadSubjectsFromId()">
+                            <input type="text" id="studentId" placeholder="مثال: SE242001"
+                                onchange="autoLoadSubjectsFromId()">
                             <small style="color: #666; font-size: 12px;">
                                 SE=مساحة, AC=تمويل, CO=حاسوب, RE=طاقة, EL=كهرباء, ME=ميكانيكا<br>
                                 الرقمين التاليين: سنة التسجيل | الرقم الثالث: 2=خريف, 1=ربيع | آخر 3 أرقام: التسلسل
@@ -1249,12 +1267,15 @@
                             <button onclick="selectSemester(6)">الفصل السادس</button>
                         </div>
                         <div id="subjectsGrid" class="subjects-grid">
-                            <p style="color: #666; text-align: center; padding: 20px;">أدخل الرقم الدراسي لتحميل المواد تلقائياً</p>
+                            <p style="color: #666; text-align: center; padding: 20px;">أدخل الرقم الدراسي لتحميل المواد
+                                تلقائياً</p>
                         </div>
                         <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                            <strong>💡 ملاحظة:</strong> يتم إضافة جميع المواد تلقائياً بناءً على القسم والفصل من الرقم الدراسي<br>
+                            <strong>💡 ملاحظة:</strong> يتم إضافة جميع المواد تلقائياً بناءً على القسم والفصل من الرقم
+                            الدراسي<br>
                             يمكنك إضافة مواد مطالبة للطلاب الراسبين من الفصل السابق باستخدام الزر أدناه<br>
-                            <strong>📝 مطلوب فقط:</strong> أدخل درجات أعمال الفصل والاختبار النهائي، سيتم حساب المجموع والتقدير تلقائياً
+                            <strong>📝 مطلوب فقط:</strong> أدخل درجات أعمال الفصل والاختبار النهائي، سيتم حساب المجموع
+                            والتقدير تلقائياً
                         </p>
                         <button class="edit-subjects-btn" onclick="toggleSubjectEditor()">📝 تعديل المواد</button>
                         <div id="subjectEditor" class="subject-editor">
@@ -1263,8 +1284,10 @@
                                 <!-- سيتم تحميل المواد هنا -->
                             </div>
                             <button class="add-subject-btn" onclick="addNewSubject()">+ إضافة مادة جديدة</button>
-                            <button class="primary" onclick="saveSubjectsChanges()" style="margin-top: 10px;">💾 حفظ التغييرات</button>
-                            <button class="danger" onclick="toggleSubjectEditor()" style="margin-top: 10px;">إلغاء</button>
+                            <button class="primary" onclick="saveSubjectsChanges()" style="margin-top: 10px;">💾 حفظ
+                                التغييرات</button>
+                            <button class="danger" onclick="toggleSubjectEditor()"
+                                style="margin-top: 10px;">إلغاء</button>
                         </div>
                     </div>
                 </div>
@@ -1275,9 +1298,12 @@
                         <div class="subject-input">
                             <input type="text" placeholder="اسم المادة" class="subject-name">
                             <input type="number" placeholder="الوحدات" class="subject-units" min="1" max="6">
-                            <input type="number" placeholder="أعمال الفصل" class="subject-classwork" min="0" max="40" onchange="autoCalculate(this)">
-                            <input type="number" placeholder="الاختبار النهائي" class="subject-final" min="0" max="60" onchange="autoCalculate(this)">
-                            <input type="number" placeholder="المجموع" class="subject-total" min="0" max="100" readonly style="background: #f8f9fa;">
+                            <input type="number" placeholder="أعمال الفصل" class="subject-classwork" min="0" max="40"
+                                onchange="autoCalculate(this)">
+                            <input type="number" placeholder="الاختبار النهائي" class="subject-final" min="0" max="60"
+                                onchange="autoCalculate(this)">
+                            <input type="number" placeholder="المجموع" class="subject-total" min="0" max="100" readonly
+                                style="background: #f8f9fa;">
                             <select class="subject-evaluation" readonly style="background: #f8f9fa;">
                                 <option value="">يتم حساب تلقائياً</option>
                                 <option value="ممتاز">ممتاز</option>
@@ -1290,8 +1316,10 @@
                             <button type="button" class="remove-subject" onclick="removeSubject(this)">حذف</button>
                         </div>
                     </div>
-                    <button type="button" onclick="addSubject()" class="primary" style="margin-top: 10px;">+ إضافة مادة</button>
-                    <button type="button" onclick="addFailedSubject()" class="warning" style="margin-top: 10px;">+ إضافة مادة مطالبة</button>
+                    <button type="button" onclick="addSubject()" class="primary" style="margin-top: 10px;">+ إضافة
+                        مادة</button>
+                    <button type="button" onclick="addFailedSubject()" class="warning" style="margin-top: 10px;">+ إضافة
+                        مادة مطالبة</button>
                 </div>
 
                 <button type="button" onclick="addStudent()" class="primary">💾 حفظ الطالب</button>
@@ -1301,27 +1329,28 @@
             <div id="search-student" class="tab-content">
                 <div class="search-section">
                     <h2>🔍 البحث عن طالب</h2>
-                    
+
                     <!-- Mobile-Responsive Search Input -->
                     <div class="search-input-mobile">
                         <div class="search-input-group">
-                            <input type="text" id="searchId" placeholder="أدخل الرقم الدراسي" class="search-input-field">
+                            <input type="text" id="searchId" placeholder="أدخل الرقم الدراسي"
+                                class="search-input-field">
                             <button onclick="searchStudent()" class="search-button">
                                 <span class="search-icon">🔍</span>
                                 <span class="search-text">بحث</span>
                             </button>
                         </div>
-                        
+
                         <!-- Quick Search Buttons -->
                         <div class="quick-search-buttons">
                             <button onclick="clearSearch()" class="quick-btn clear-btn">مسح</button>
                         </div>
                     </div>
-                    
+
                     <!-- Search Results -->
                     <div id="searchResults" class="search-results"></div>
                 </div>
-                
+
                 <!-- Student Result Display -->
                 <div id="studentResultDisplay" class="student-result-display" style="display: none;">
                     <!-- سيتم عرض نتيجة الطالب هنا -->
@@ -1356,7 +1385,7 @@
                     </div>
                     <div id="blockStatus" style="margin-top: 15px;"></div>
                 </div>
-                
+
                 <div class="form-section" style="margin-top: 20px;">
                     <h3>📋 قائمة الطلاب المحجوبين</h3>
                     <button onclick="loadBlockedStudents()" class="primary">تحديث القائمة</button>
@@ -1388,7 +1417,8 @@
                         </div>
                         <div class="form-group">
                             <label>فلتر القسم</label>
-                            <select id="departmentFilter" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <select id="departmentFilter"
+                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                                 <option value="">جميع الأقسام</option>
                                 <option value="هندسة المساحة">هندسة المساحة</option>
                                 <option value="هندسة الحاسوب">هندسة الحاسوب</option>
@@ -1400,9 +1430,12 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button onclick="printAllStudents()" class="primary" style="padding: 10px 20px; font-size: 14px;">🖨️ طباعة الكل</button>
-                        <button onclick="previewPrintAll()" class="secondary" style="padding: 10px 20px; font-size: 14px;">👁️ معاينة</button>
-                        <button onclick="exportToPDF()" class="success" style="padding: 10px 20px; font-size: 14px;">📄 تصدير PDF</button>
+                        <button onclick="printAllStudents()" class="primary"
+                            style="padding: 10px 20px; font-size: 14px;">🖨️ طباعة الكل</button>
+                        <button onclick="previewPrintAll()" class="secondary"
+                            style="padding: 10px 20px; font-size: 14px;">👁️ معاينة</button>
+                        <button onclick="exportToPDF()" class="success" style="padding: 10px 20px; font-size: 14px;">📄
+                            تصدير PDF</button>
                     </div>
                     <div id="printPreview" style="margin-top: 15px;"></div>
                 </div>
@@ -1412,26 +1445,30 @@
             <div id="excel" class="tab-content">
                 <div class="excel-section">
                     <h3>📊 استيراد وتصدير Excel</h3>
-                    
+
                     <div class="excel-buttons">
                         <button onclick="exportToExcel()" class="primary">📤 تصدير إلى Excel (شامل)</button>
                         <button onclick="downloadTemplate()" class="warning">📥 تحميل قالب Excel (محدث)</button>
-                        <button onclick="window.open('create_excel_template_v2.html', '_blank')" class="primary">📄 إنشاء قالب Excel احترافي</button>
+                        <button onclick="window.open('create_excel_template_v2.html', '_blank')" class="primary">📄
+                            إنشاء قالب Excel احترافي</button>
                         <button onclick="exportStatisticsToExcel()" class="secondary">📊 تصدير الإحصائيات</button>
                     </div>
-                    
+
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <h4>🔍 شرح نظام ترميز الطلاب:</h4>
                         <ul style="text-align: right; margin-right: 20px;">
-                            <li><strong>SE</strong> = المساحة | <strong>AC</strong> = التمويل والمصارف | <strong>CO</strong> = الحاسوب</li>
-                            <li><strong>RE</strong> = الطاقة | <strong>EL</strong> = الكهرباء | <strong>ME</strong> = الميكانيكا</li>
+                            <li><strong>SE</strong> = المساحة | <strong>AC</strong> = التمويل والمصارف |
+                                <strong>CO</strong> = الحاسوب
+                            </li>
+                            <li><strong>RE</strong> = الطاقة | <strong>EL</strong> = الكهرباء | <strong>ME</strong> =
+                                الميكانيكا</li>
                             <li><strong>الرقمين التاليين</strong> = سنة التسجيل (مثال: 24 = 2024)</li>
                             <li><strong>الرقم الثالث</strong> = 2 = خريف | 1 = ربيع</li>
                             <li><strong>آخر 3 أرقام</strong> = تسلسل الطالب (1-999)</li>
                             <li><strong>مثال: SE242001</strong> = طالب مساحة، سجل 2024، فصل خريف، تسلسل 001</li>
                         </ul>
                     </div>
-                    
+
                     <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <h4>📊 ميزات النظام المحدث:</h4>
                         <ul style="text-align: right; margin-right: 20px;">
@@ -1447,7 +1484,8 @@
                 <div class="file-upload">
                     <h3>📁 استيراد من Excel</h3>
                     <p>ارفع ملف Excel لاستيراد بيانات الطلاب</p>
-                    <p style="color: #666; font-size: 14px; margin-top: 10px;">يدعم ملفات .xlsx و .xls مع التحقق من صحة البيانات</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">يدعم ملفات .xlsx و .xls مع التحقق من صحة
+                        البيانات</p>
                     <input type="file" id="excelFileInput" accept=".xlsx,.xls">
                     <button onclick="importFromExcel()">📥 استيراد من Excel</button>
                     <div id="importResults" class="status-message" style="display: none; margin-top: 15px;"></div>
@@ -1459,85 +1497,101 @@
             <div id="settings" class="tab-content">
                 <div class="admin-settings">
                     <h3>⚙️ إعدادات المدير</h3>
-                    
+
                     <!-- User Management Section -->
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                         <h4>👥 إدارة المستخدمين والصلاحيات</h4>
-                        
+
                         <div style="margin-bottom: 15px;">
-                            <button onclick="showAddUserModal()" class="primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            <button onclick="showAddUserModal()" class="primary"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                                 ➕ إضافة مستخدم جديد
                             </button>
-                            <button onclick="showUsersList()" class="secondary" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px;">
+                            <button onclick="showUsersList()" class="secondary"
+                                style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px;">
                                 📋 عرض المستخدمين
                             </button>
                         </div>
-                        
+
                         <div id="usersList" style="display: none; margin-top: 15px;">
                             <!-- Users list will be populated here -->
                         </div>
                     </div>
-                    
+
                     <!-- New "مطالب" Rule Setting -->
-                    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
+                    <div
+                        style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
                         <h4>⚠️ إعدادات شرط الرسوب للمواد المطالبة</h4>
-                        
+
                         <div class="toggle-switch">
-                            <input type="checkbox" id="requiredSubjectRuleEnabled" checked onchange="saveRequiredSubjectRule()">
+                            <input type="checkbox" id="requiredSubjectRuleEnabled" checked
+                                onchange="saveRequiredSubjectRule()">
                             <label for="requiredSubjectRuleEnabled">تفعيل شرط الرسوب للمواد المطالبة</label>
                         </div>
                         <p class="warning-text">
-                            عند التفعيل: إذا رسب الطالب في أي مادة من نوع "مطالب"، يعتبر راسباً بغض النظر عن عدد المواد الراسبة الأخرى والمعدل التراكمي
+                            عند التفعيل: إذا رسب الطالب في أي مادة من نوع "مطالب"، يعتبر راسباً بغض النظر عن عدد المواد
+                            الراسبة الأخرى والمعدل التراكمي
                         </p>
                         <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                            <strong>💡 ملاحظة:</strong> هذا الشرط له الأولوية القصوى على شروط الرسوب الأخرى (عدد المواد الراسبة والمعدل التراكمي)
+                            <strong>💡 ملاحظة:</strong> هذا الشرط له الأولوية القصوى على شروط الرسوب الأخرى (عدد المواد
+                            الراسبة والمعدل التراكمي)
                         </p>
                     </div>
-                    
+
                     <div class="toggle-switch">
                         <input type="checkbox" id="failRuleEnabled" checked onchange="saveSettings()">
                         <label for="failRuleEnabled">تفعيل شرط الرسوب في الاختبار النهائي</label>
                     </div>
                     <p class="warning-text">
-                        عند التفعيل: إذا حصل الطالب على أقل من 30 درجة في الاختبار النهائي، يتم احتساب الدرجة صفر في المجموع<br>
+                        عند التفعيل: إذا حصل الطالب على أقل من 30 درجة في الاختبار النهائي، يتم احتساب الدرجة صفر في
+                        المجموع<br>
                         مع إبقاء الدرجة الأصلية مسجلة في الخلية
                     </p>
-                    
+
                     <div style="margin-top: 20px;">
                         <h4>📅 الفصل الدراسي الحالي:</h4>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                            <input type="text" id="currentAcademicSemester" placeholder="اكتب الفصل الدراسي (مثال: خريف 2030)" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;" onchange="saveAcademicSemester()" onblur="saveAcademicSemester()">
+                            <input type="text" id="currentAcademicSemester"
+                                placeholder="اكتب الفصل الدراسي (مثال: خريف 2030)"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;"
+                                onchange="saveAcademicSemester()" onblur="saveAcademicSemester()">
                             <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
                                 <strong>💡 أمثلة:</strong> خريف 2030، ربيع 2031، خريف 2031-2032
                             </small>
                         </div>
                     </div>
-                    
+
                     <div style="margin-top: 20px;">
                         <h4>📊 الإحصائيات الحالية:</h4>
-                        <div id="statistics" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <div id="statistics"
+                            style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
                             <p>عدد الطلاب: <span id="totalStudents">0</span></p>
                             <p>عدد المواد: <span id="totalSubjects">0</span></p>
                             <p>متوسط الدرجات: <span id="averageGrade">0</span></p>
                         </div>
-                        
+
                         <div style="margin-top: 20px;">
-                            <button onclick="showInstituteStatistics()" class="primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                            <button onclick="showInstituteStatistics()" class="primary"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
                                 📊 إحصائيات المعهد الشاملة
                             </button>
                         </div>
-                        
+
                         <div style="margin-top: 20px;">
                             <h4>🏢 إدارة الأقسام:</h4>
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
                                 <div style="margin-bottom: 15px;">
-                                    <input type="text" id="newDepartmentName" placeholder="اسم القسم الجديد" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">
-                                    <input type="text" id="newDepartmentCode" placeholder="رمز القسم (مثال: CS)" maxlength="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 10px; text-transform: uppercase;">
-                                    <button onclick="addNewDepartment()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">
+                                    <input type="text" id="newDepartmentName" placeholder="اسم القسم الجديد"
+                                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">
+                                    <input type="text" id="newDepartmentCode" placeholder="رمز القسم (مثال: CS)"
+                                        maxlength="5"
+                                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 10px; text-transform: uppercase;">
+                                    <button onclick="addNewDepartment()"
+                                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%;">
                                         ➕ إضافة قسم جديد
                                     </button>
                                 </div>
-                                
+
                                 <div id="departmentsList" style="margin-top: 15px;">
                                     <h5 style="margin-bottom: 10px; color: #2c3e50;">📋 الأقسام المتاحة:</h5>
                                     <div id="departmentsContainer" style="max-height: 200px; overflow-y: auto;">
@@ -1546,10 +1600,11 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h4 style="margin-top: 20px;">🎨 شرح التقديرات والألوان:</h4>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
                                 <div class="grade-excellent" style="padding: 10px; border-radius: 5px;">
                                     <strong>85-100: ممتاز</strong>
                                 </div>
@@ -1568,14 +1623,16 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div style="margin-top: 20px;">
                         <button onclick="clearAllData()" class="danger">🗑️ مسح جميع البيانات</button>
                         <button onclick="exportAllSettings()" class="primary">📤 تصدير جميع الإعدادات والبيانات</button>
-                        <button onclick="document.getElementById('importFile').click()" class="warning">📥 استيراد نسخة احتياطية</button>
-                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importAllSettings(event)">
+                        <button onclick="document.getElementById('importFile').click()" class="warning">📥 استيراد نسخة
+                            احتياطية</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;"
+                            onchange="importAllSettings(event)">
                     </div>
-                    
+
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <h4>📋 معلومات النسخة الاحتياطية:</h4>
                         <ul style="text-align: right; margin-right: 20px; line-height: 1.8;">
@@ -1587,9 +1644,10 @@
                             <li>⚙️ <strong>الإعدادات:</strong> جميع إعدادات النظام</li>
                             <li>📊 <strong>الإحصائيات:</strong> معلومات إحصائية عن البيانات</li>
                         </ul>
-                        
+
                         <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                            <strong>⚠️ ملاحظة هامة:</strong> عند استيراد نسخة احتياطية، سيتم استبدال جميع البيانات الحالية بالكامل
+                            <strong>⚠️ ملاحظة هامة:</strong> عند استيراد نسخة احتياطية، سيتم استبدال جميع البيانات
+                            الحالية بالكامل
                         </div>
                     </div>
                 </div>
@@ -1610,97 +1668,103 @@
                 <form id="userForm">
                     <div class="form-group">
                         <label for="userName">اسم المستخدم:</label>
-                        <input type="text" id="userName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="text" id="userName" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="userEmail">البريد الإلكتروني:</label>
-                        <input type="email" id="userEmail" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="email" id="userEmail" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="userPassword">كلمة المرور:</label>
-                        <input type="password" id="userPassword" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                        <button type="button" onclick="generatePassword()" style="margin-top: 5px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                        <input type="password" id="userPassword" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <button type="button" onclick="generatePassword()"
+                            style="margin-top: 5px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">
                             🔑 إنشاء كلمة مرور عشوائية
                         </button>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="userRole">الدور:</label>
-                        <select id="userRole" onchange="updatePermissionsVisibility()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <select id="userRole" onchange="updatePermissionsVisibility()"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                             <option value="admin">مدير</option>
                             <option value="data_entry">مدخل بيانات</option>
                             <option value="viewer">مشاهد فقط</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>🔐 الصلاحيات:</label>
-                        <div id="permissionsContainer" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                        <div id="permissionsContainer"
+                            style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px;">
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_add_students" style="margin-left: 10px;">
                                     <span>إضافة طلاب جدد</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_edit_students" style="margin-left: 10px;">
                                     <span>تعديل بيانات الطلاب</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_delete_students" style="margin-left: 10px;">
                                     <span>حذف الطلاب</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_export_excel" style="margin-left: 10px;">
                                     <span>تصدير Excel</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_import_excel" style="margin-left: 10px;">
                                     <span>استيراد Excel</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_manage_departments" style="margin-left: 10px;">
                                     <span>إدارة الأقسام</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_manage_users" style="margin-left: 10px;">
                                     <span>إدارة المستخدمين</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_view_statistics" style="margin-left: 10px;">
                                     <span>عرض الإحصائيات</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_block_students" style="margin-left: 10px;">
                                     <span>حجب الطلاب</span>
                                 </label>
                             </div>
-                            
+
                             <div style="margin-bottom: 10px;">
                                 <label style="display: flex; align-items: center; margin-bottom: 5px;">
                                     <input type="checkbox" id="perm_backup_restore" style="margin-left: 10px;">
@@ -1709,20 +1773,23 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="userStatus">الحالة:</label>
-                        <select id="userStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <select id="userStatus"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                             <option value="active">نشط</option>
                             <option value="inactive">غير نشط</option>
                         </select>
                     </div>
-                    
+
                     <div style="text-align: left; margin-top: 20px;">
-                        <button type="button" onclick="saveUser()" class="primary" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        <button type="button" onclick="saveUser()" class="primary"
+                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                             💾 حفظ المستخدم
                         </button>
-                        <button type="button" onclick="closeUserModal()" class="secondary" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px;">
+                        <button type="button" onclick="closeUserModal()" class="secondary"
+                            style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px;">
                             إلغاء
                         </button>
                     </div>
@@ -1730,22 +1797,76 @@
             </div>
         </div>
     </div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
         // Initialize students data
         let students = JSON.parse(localStorage.getItem('students')) || [];
         let currentUser = null;
         let users = JSON.parse(localStorage.getItem('users')) || [];
-        
+        let db = null;
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "hist-js.firebaseapp.com",
+            projectId: "hist-js",
+            storageBucket: "hist-js.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                console.log('✅ Firebase Initialized successfully');
+            } else {
+                console.warn('⚠️ Firebase credentials not set. Cloud sync disabled.');
+            }
+        } catch (error) {
+            console.error('❌ Firebase Error:', error);
+        }
+
+        // Sync data to Firebase
+        async function syncToFirebase(studentData = null) {
+            if (!db) return;
+
+            try {
+                if (studentData) {
+                    // Sync single student if provided
+                    await db.collection('students').doc(studentData.id).set(studentData);
+                    console.log('✅ Student synced to Cloud:', studentData.id);
+                } else {
+                    // Sync all students (batch or sequence)
+                    const batch = db.batch();
+                    const allStudents = JSON.parse(localStorage.getItem('students')) || [];
+
+                    allStudents.forEach(student => {
+                        const ref = db.collection('students').doc(student.id);
+                        batch.set(ref, student);
+                    });
+
+                    await batch.commit();
+                    console.log('✅ All students synced to Cloud');
+                }
+            } catch (error) {
+                console.error('❌ Cloud Sync failed:', error);
+            }
+        }
+
         // Make students globally accessible and ensure it's always in sync
-        window.getStudents = function() {
+        window.getStudents = function () {
             return JSON.parse(localStorage.getItem('students')) || [];
         };
-        
-        window.refreshStudents = function() {
+
+        window.refreshStudents = function () {
             students = JSON.parse(localStorage.getItem('students')) || [];
         };
-        
+
         // User Management System
         function showAddUserModal() {
             document.getElementById('userModalTitle').textContent = 'إضافة مستخدم جديد';
@@ -1753,11 +1874,11 @@
             document.getElementById('userModal').style.display = 'block';
             updatePermissionsVisibility();
         }
-        
+
         function closeUserModal() {
             document.getElementById('userModal').style.display = 'none';
         }
-        
+
         function generatePassword() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
             let password = '';
@@ -1766,11 +1887,11 @@
             }
             document.getElementById('userPassword').value = password;
         }
-        
+
         function updatePermissionsVisibility() {
             const role = document.getElementById('userRole').value;
             const permissionsContainer = document.getElementById('permissionsContainer');
-            
+
             if (role === 'admin') {
                 // Admin gets all permissions
                 const checkboxes = permissionsContainer.querySelectorAll('input[type="checkbox"]');
@@ -1792,7 +1913,7 @@
                     'perm_block_students': false,
                     'perm_backup_restore': false
                 };
-                
+
                 Object.keys(permissions).forEach(permId => {
                     const checkbox = document.getElementById(permId);
                     if (checkbox) {
@@ -1814,7 +1935,7 @@
                     'perm_block_students': false,
                     'perm_backup_restore': false
                 };
-                
+
                 Object.keys(permissions).forEach(permId => {
                     const checkbox = document.getElementById(permId);
                     if (checkbox) {
@@ -1824,33 +1945,33 @@
                 });
             }
         }
-        
+
         function saveUser() {
             const name = document.getElementById('userName').value.trim();
             const email = document.getElementById('userEmail').value.trim();
             const password = document.getElementById('userPassword').value;
             const role = document.getElementById('userRole').value;
             const status = document.getElementById('userStatus').value;
-            
+
             if (!name || !email || !password) {
                 showStatus('يرجى ملء جميع الحقول المطلوبة', 'error');
                 return;
             }
-            
+
             // Get permissions
             const permissions = {};
             const checkboxes = document.querySelectorAll('#permissionsContainer input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 permissions[checkbox.id.replace('perm_', '')] = checkbox.checked;
             });
-            
+
             // Check if email already exists
             const existingUser = users.find(u => u.email === email);
             if (existingUser) {
                 showStatus('البريد الإلكتروني مستخدم بالفعل', 'error');
                 return;
             }
-            
+
             // Create user object
             const user = {
                 id: 'user_' + Date.now(),
@@ -1864,30 +1985,30 @@
                 lastLogin: null,
                 createdBy: currentUser ? currentUser.name : 'System'
             };
-            
+
             // Save user
             users.push(user);
             localStorage.setItem('users', JSON.stringify(users));
-            
+
             showStatus(`تم إضافة المستخدم "${name}" بنجاح`, 'success');
             closeUserModal();
-            
+
             // Refresh users list if visible
             if (document.getElementById('usersList').style.display !== 'none') {
                 showUsersList();
             }
         }
-        
+
         function showUsersList() {
             const usersList = document.getElementById('usersList');
             users = JSON.parse(localStorage.getItem('users')) || [];
-            
+
             if (users.length === 0) {
                 usersList.innerHTML = '<p style="text-align: center; color: #666;">لا يوجد مستخدمون حالياً</p>';
                 usersList.style.display = 'block';
                 return;
             }
-            
+
             let html = `
                 <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                     <table style="width: 100%; border-collapse: collapse;">
@@ -1903,12 +2024,12 @@
                         </thead>
                         <tbody>
             `;
-            
+
             users.forEach(user => {
                 const statusColor = user.status === 'active' ? '#28a745' : '#dc3545';
                 const statusText = user.status === 'active' ? 'نشط' : 'غير نشط';
                 const roleText = user.role === 'admin' ? 'مدير' : user.role === 'data_entry' ? 'مدخل بيانات' : 'مشاهد';
-                
+
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 12px;">${user.name}</td>
@@ -1934,28 +2055,28 @@
                     </tr>
                 `;
             });
-            
+
             html += `
                         </tbody>
                     </table>
                 </div>
             `;
-            
+
             usersList.innerHTML = html;
             usersList.style.display = 'block';
         }
-        
+
         function editUser(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) return;
-            
+
             document.getElementById('userModalTitle').textContent = 'تعديل بيانات المستخدم';
             document.getElementById('userName').value = user.name;
             document.getElementById('userEmail').value = user.email;
             document.getElementById('userPassword').value = '';
             document.getElementById('userRole').value = user.role;
             document.getElementById('userStatus').value = user.status;
-            
+
             // Set permissions
             Object.keys(user.permissions).forEach(perm => {
                 const checkbox = document.getElementById('perm_' + perm);
@@ -1963,36 +2084,36 @@
                     checkbox.checked = user.permissions[perm];
                 }
             });
-            
+
             // Store editing user ID
             document.getElementById('userForm').dataset.editingUserId = userId;
-            
+
             document.getElementById('userModal').style.display = 'block';
         }
-        
+
         function deleteUser(userId) {
             if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-            
+
             users = users.filter(u => u.id !== userId);
             localStorage.setItem('users', JSON.stringify(users));
-            
+
             showStatus('تم حذف المستخدم بنجاح', 'success');
             showUsersList();
         }
-        
+
         function resetPassword(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) return;
-            
+
             const newPassword = prompt('أدخل كلمة المرور الجديدة:', '');
             if (!newPassword) return;
-            
+
             user.password = btoa(newPassword);
             localStorage.setItem('users', JSON.stringify(users));
-            
+
             showStatus(`تم إعادة تعيين كلمة المرور للمستخدم "${user.name}" بنجاح`, 'success');
         }
-        
+
         // Save required subject rule setting
         function saveRequiredSubjectRule() {
             const enabled = document.getElementById('requiredSubjectRuleEnabled').checked;
@@ -2016,34 +2137,34 @@
         }
 
         // Make functions global - define them early
-        window.displayStudentResult = function(studentId) {
+        window.displayStudentResult = function (studentId) {
             console.log('=== displayStudentResult START ===');
             console.log('Student ID:', studentId);
             console.log('Students array:', students);
             console.log('Students length:', students.length);
-            
+
             const student = students.find(s => s.id === studentId);
             console.log('Found student:', student);
-            
+
             if (!student) {
                 console.log('Student not found!');
                 alert('الطالب غير موجود');
                 return;
             }
-            
+
             console.log('Student found, name:', student.name);
-            
+
             const resultDisplayDiv = document.getElementById('studentResultDisplay');
             console.log('Display element:', resultDisplayDiv);
-            
+
             if (!resultDisplayDiv) {
                 console.log('Display element not found!');
                 alert('عنصر العرض غير موجود');
                 return;
             }
-            
+
             console.log('Creating HTML content...');
-            
+
             // Very simple display
             const htmlContent = `
                 <div style="padding: 20px; background: #e8f4fd; border: 3px solid #007bff; border-radius: 15px; margin: 20px;">
@@ -2060,27 +2181,27 @@
                     </div>
                 </div>
             `;
-            
+
             console.log('Setting innerHTML...');
             resultDisplayDiv.innerHTML = htmlContent;
-            
+
             console.log('Making it visible...');
             resultDisplayDiv.style.display = 'block';
-            
+
             console.log('Scrolling to element...');
             resultDisplayDiv.scrollIntoView({ behavior: 'smooth' });
-            
+
             console.log('=== displayStudentResult END ===');
         };
 
-        window.deleteStudent = function(studentId) {
+        window.deleteStudent = function (studentId) {
             if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
                 students = students.filter(s => s.id !== studentId);
                 localStorage.setItem('students', JSON.stringify(students));
-                
+
                 // Refresh students data
                 window.refreshStudents();
-                
+
                 showStatus('تم حذف الطالب بنجاح', 'success');
                 loadAllStudents();
             }
@@ -2090,7 +2211,7 @@
         let currentSemester = 1;
         let selectedSubjects = [];
 
-                // Department subjects database
+        // Department subjects database
         const departmentSubjects = {
             'التمويل والمصارف': {
                 1: [
@@ -2401,10 +2522,10 @@
                 settings = JSON.parse(savedSettings);
             }
             document.getElementById('failRuleEnabled').checked = settings.failRuleEnabled;
-            
+
             // Load academic semester
             loadAcademicSemester();
-            
+
             updateStatistics();
         }
 
@@ -2413,7 +2534,7 @@
             settings.failRuleEnabled = document.getElementById('failRuleEnabled').checked;
             localStorage.setItem('adminSettings', JSON.stringify(settings));
             showStatus('تم حفظ الإعدادات بنجاح', 'success');
-            
+
             // Recalculate all students' totals to apply new rule
             recalculateAllStudents();
         }
@@ -2422,7 +2543,7 @@
         function saveAcademicSemester() {
             const semesterInput = document.getElementById('currentAcademicSemester');
             const semesterText = semesterInput.value.trim();
-            
+
             if (semesterText) {
                 localStorage.setItem('currentAcademicSemester', semesterText);
                 showStatus(`تم حفظ الفصل الدراسي: ${semesterText}`, 'success');
@@ -2453,31 +2574,31 @@
                     student.subjects.forEach((subject, subjectIndex) => {
                         // Recalculate total using the new rule
                         const newTotal = calculateTotalGrade(subject.classWork, subject.finalExam);
-                        
+
                         // Update evaluation based on new total
                         const newEvaluation = getEvaluation(newTotal);
-                        
+
                         // Update the subject
                         subject.total = newTotal;
                         subject.evaluation = newEvaluation;
-                        
+
                         console.log(`Updated ${student.name} - ${subject.name}: classwork=${subject.classWork}, final=${subject.finalExam}, total=${newTotal}, eval=${newEvaluation}, rule=${settings.failRuleEnabled}`);
                     });
                 }
             });
-            
+
             // Save updated students to localStorage
             localStorage.setItem('students', JSON.stringify(students));
-            
+
             // Update UI if student is being displayed
             const currentStudentId = document.getElementById('studentId').value;
             if (currentStudentId) {
                 updateSubjectTotals();
             }
-            
+
             // Update statistics
             updateStatistics();
-            
+
             showStatus('تم تطبيق الإعدادات على جميع الطلاب', 'success');
         }
 
@@ -2485,14 +2606,14 @@
         function calculateTotalGrade(classwork, finalExam) {
             const cw = parseFloat(classwork) || 0;
             const fe = parseFloat(finalExam) || 0;
-            
+
             console.log(`calculateTotalGrade: classwork=${cw}, finalExam=${fe}, failRuleEnabled=${settings.failRuleEnabled}`);
-            
+
             if (settings.failRuleEnabled && fe < 30) {
                 console.log(`Final exam < 30 (${fe}), returning only classwork: ${cw}`);
                 return cw; // Only count classwork if final exam < 30
             }
-            
+
             const total = cw + fe;
             console.log(`Normal calculation, returning: ${total}`);
             return total;
@@ -2519,13 +2640,13 @@
         // Select semester
         function selectSemester(semester) {
             currentSemester = semester;
-            
+
             // Update button states
             document.querySelectorAll('.semester-selector button').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            
+
             // Reload subjects for new semester
             loadDepartmentSubjectsForGrid();
         }
@@ -2533,19 +2654,19 @@
         function loadDepartmentSubjectsForGrid() {
             const department = document.getElementById('department').value;
             const grid = document.getElementById('subjectsGrid');
-            
+
             if (!department) {
                 grid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">اختر القسم أولاً</p>';
                 return;
             }
-            
+
             const subjects = departmentSubjects[department]?.[currentSemester] || [];
-            
+
             if (subjects.length === 0) {
                 grid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد مواد لهذا القسم في هذا الفصل</p>';
                 return;
             }
-            
+
             grid.innerHTML = subjects.map((subject, index) => `
                 <div class="subject-item" onclick="toggleSubject(${index}, '${subject.name}', ${subject.units})" id="subject-${index}">
                     <strong>${subject.name}</strong><br>
@@ -2558,7 +2679,7 @@
         function toggleSubject(index, name, units) {
             const element = document.getElementById(`subject-${index}`);
             const isSelected = element.classList.contains('selected');
-            
+
             if (isSelected) {
                 element.classList.remove('selected');
                 removeSubjectFromList(name);
@@ -2591,7 +2712,7 @@
                 <button type="button" class="remove-subject" onclick="removeSubject(this)">حذف</button>
             `;
             container.appendChild(subjectDiv);
-            
+
             // Add to selected subjects list
             selectedSubjects.push({ name, units });
         }
@@ -2600,14 +2721,14 @@
         function removeSubjectFromList(name) {
             const container = document.getElementById('subjectsContainer');
             const subjects = container.querySelectorAll('.subject-input');
-            
+
             subjects.forEach(subject => {
                 const nameInput = subject.querySelector('.subject-name');
                 if (nameInput && nameInput.value === name) {
                     subject.remove();
                 }
             });
-            
+
             // Remove from selected subjects list
             selectedSubjects = selectedSubjects.filter(s => s.name !== name);
         }
@@ -2616,25 +2737,25 @@
         function addFailedSubject() {
             const department = document.getElementById('department').value;
             const currentSemesterNum = currentSemester;
-            
+
             if (!department) {
                 alert('اختر القسم أولاً');
                 return;
             }
-            
+
             if (currentSemesterNum <= 1) {
                 alert('لا يمكن إضافة مواد مطالبة للفصل الأول');
                 return;
             }
-            
+
             const previousSemester = currentSemesterNum - 1;
             const previousSubjects = departmentSubjects[department]?.[previousSemester] || [];
-            
+
             if (previousSubjects.length === 0) {
                 alert('لا توجد مواد في الفصل السابق');
                 return;
             }
-            
+
             // Create modal for selecting failed subjects
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
@@ -2658,7 +2779,7 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
         }
 
@@ -2666,20 +2787,20 @@
         function confirmFailedSubjects(button) {
             const modal = button.closest('.modal-overlay');
             const checkboxes = modal.querySelectorAll('input[type="checkbox"]:checked');
-            
+
             if (checkboxes.length === 0) {
                 alert('اختر مادة واحدة على الأقل');
                 return;
             }
-            
+
             const container = document.getElementById('subjectsContainer');
-            
+
             checkboxes.forEach(checkbox => {
                 const index = parseInt(checkbox.value);
                 const department = document.getElementById('department').value;
                 const previousSemester = currentSemester - 1;
                 const subject = departmentSubjects[department]?.[previousSemester]?.[index];
-                
+
                 if (subject) {
                     const subjectDiv = document.createElement('div');
                     subjectDiv.className = 'subject-input';
@@ -2703,7 +2824,7 @@
                     container.appendChild(subjectDiv);
                 }
             });
-            
+
             closeFailedSubjectsModal(button);
             showStatus(`تم إضافة ${checkboxes.length} مواد مطالبة بنجاح`, 'success');
         }
@@ -2720,7 +2841,7 @@
         function toggleSubjectEditor() {
             const editor = document.getElementById('subjectEditor');
             const isActive = editor.classList.contains('active');
-            
+
             if (isActive) {
                 editor.classList.remove('active');
             } else {
@@ -2733,19 +2854,19 @@
         function loadSubjectsForEditing() {
             const department = document.getElementById('department').value;
             const editorContainer = document.getElementById('subjectListEditor');
-            
+
             if (!department) {
                 editorContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">اختر القسم أولاً</p>';
                 return;
             }
-            
+
             const subjects = departmentSubjects[department]?.[currentSemester] || [];
-            
+
             if (subjects.length === 0) {
                 editorContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد مواد لهذا القسم في هذا الفصل</p>';
                 return;
             }
-            
+
             editorContainer.innerHTML = subjects.map((subject, index) => `
                 <div class="subject-editor-item">
                     <input type="text" value="${subject.name}" id="edit-subject-name-${index}" placeholder="اسم المادة">
@@ -2759,7 +2880,7 @@
         function addNewSubject() {
             const editorContainer = document.getElementById('subjectListEditor');
             const subjectCount = editorContainer.children.length;
-            
+
             const newSubjectHtml = `
                 <div class="subject-editor-item">
                     <input type="text" id="edit-subject-name-${subjectCount}" placeholder="اسم المادة">
@@ -2767,7 +2888,7 @@
                     <button onclick="removeSubjectFromEditor(${subjectCount})">حذف</button>
                 </div>
             `;
-            
+
             editorContainer.insertAdjacentHTML('beforeend', newSubjectHtml);
         }
 
@@ -2784,19 +2905,19 @@
         function saveSubjectsChanges() {
             const department = document.getElementById('department').value;
             const editorContainer = document.getElementById('subjectListEditor');
-            
+
             if (!department) {
                 alert('اختر القسم أولاً');
                 return;
             }
-            
+
             const subjectItems = editorContainer.querySelectorAll('.subject-editor-item');
             const newSubjects = [];
-            
+
             subjectItems.forEach(item => {
                 const nameInput = item.querySelector('input[type="text"]');
                 const unitsInput = item.querySelector('input[type="number"]');
-                
+
                 if (nameInput && unitsInput && nameInput.value.trim() && unitsInput.value) {
                     newSubjects.push({
                         name: nameInput.value.trim(),
@@ -2804,27 +2925,27 @@
                     });
                 }
             });
-            
+
             if (newSubjects.length === 0) {
                 alert('يجب إضافة مادة واحدة على الأقل');
                 return;
             }
-            
+
             // Update the subjects database
             if (!departmentSubjects[department]) {
                 departmentSubjects[department] = {};
             }
             departmentSubjects[department][currentSemester] = newSubjects;
-            
+
             // Save to localStorage
             localStorage.setItem('departmentSubjects', JSON.stringify(departmentSubjects));
-            
+
             // Reload subjects display
             loadDepartmentSubjectsForGrid();
-            
+
             // Close editor
             toggleSubjectEditor();
-            
+
             showStatus('تم حفظ التغييرات بنجاح', 'success');
         }
 
@@ -2870,16 +2991,16 @@
                     localStorage.removeItem('departments');
                     localStorage.removeItem('blockedStudents');
                     localStorage.removeItem('customSubjects');
-                    
+
                     // Reset global variables
                     students = [];
                     settings = { failRuleEnabled: true };
-                    
+
                     // Update UI
                     updateStatistics();
                     displayDepartments();
                     loadAllStudents();
-                    
+
                     showStatus('تم مسح جميع البيانات بنجاح', 'success');
                 }
             }
@@ -2894,20 +3015,20 @@
                     exportDate: new Date().toLocaleString('ar-SA'),
                     systemName: 'نظام إدارة الطلاب - المعهد العالي للعلوم والتقنية'
                 },
-                
+
                 // Core data
                 students: JSON.parse(localStorage.getItem('students')) || [],
                 settings: JSON.parse(localStorage.getItem('adminSettings')) || { failRuleEnabled: true },
-                
+
                 // Department management
                 departments: JSON.parse(localStorage.getItem('departments')) || [],
-                
+
                 // Blocked students
                 blockedStudents: JSON.parse(localStorage.getItem('blockedStudents')) || [],
-                
+
                 // Custom subjects (if exists)
                 customSubjects: JSON.parse(localStorage.getItem('customSubjects')) || {},
-                
+
                 // Statistics
                 statistics: {
                     totalStudents: (JSON.parse(localStorage.getItem('students')) || []).length,
@@ -2916,7 +3037,7 @@
                     exportTimestamp: new Date().toISOString()
                 }
             };
-            
+
             // Create and download file
             const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -2925,34 +3046,34 @@
             a.download = `system_complete_backup_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            
+
             showStatus('تم تصدير جميع الإعدادات والبيانات بنجاح', 'success');
         }
 
         // Import all settings and data
         function importAllSettings(event) {
             const file = event.target.files[0];
-            
+
             if (!file) {
                 return;
             }
-            
+
             if (!file.name.endsWith('.json')) {
                 showStatus('يرجى اختيار ملف JSON صالح', 'error');
                 return;
             }
-            
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const importData = JSON.parse(e.target.result);
-                    
+
                     // Validate import data structure
                     if (!importData.exportInfo || !importData.students) {
                         showStatus('ملف النسخة الاحتياطية غير صالح', 'error');
                         return;
                     }
-                    
+
                     // Confirm import
                     const confirmMessage = `هل تريد استيراد النسخة الاحتياطية التالية؟\n\n` +
                         `تاريخ التصدير: ${importData.exportInfo.exportDate}\n` +
@@ -2961,51 +3082,51 @@
                         `عدد الأقسام: ${(importData.departments || []).length}\n` +
                         `الطلاب المحجوبين: ${(importData.blockedStudents || []).length}\n\n` +
                         `سيتم استبدال جميع البيانات الحالية!`;
-                    
+
                     if (!confirm(confirmMessage)) {
                         return;
                     }
-                    
+
                     // Import all data
                     localStorage.setItem('students', JSON.stringify(importData.students || []));
                     localStorage.setItem('adminSettings', JSON.stringify(importData.settings || { failRuleEnabled: true }));
                     localStorage.setItem('departments', JSON.stringify(importData.departments || []));
                     localStorage.setItem('blockedStudents', JSON.stringify(importData.blockedStudents || []));
                     localStorage.setItem('customSubjects', JSON.stringify(importData.customSubjects || {}));
-                    
+
                     // Update global variables
                     students = importData.students || [];
                     settings = importData.settings || { failRuleEnabled: true };
-                    
+
                     // Refresh all UI components
                     window.refreshStudents();
                     updateStatistics();
                     displayDepartments();
                     loadAllStudents();
-                    
+
                     // Load blocked students if the function exists
                     if (typeof loadBlockedStudents === 'function') {
                         loadBlockedStudents();
                     }
-                    
+
                     // Update settings UI
                     const failRuleCheckbox = document.getElementById('failRuleEnabled');
                     if (failRuleCheckbox) {
                         failRuleCheckbox.checked = settings.failRuleEnabled;
                     }
-                    
+
                     showStatus(`تم استيراد النسخة الاحتياطية بنجاح\n` +
-                              `• ${importData.students.length} طالب\n` +
-                              `• ${(importData.departments || []).length} قسم\n` +
-                              `• ${(importData.blockedStudents || []).length} طالب محجوب`, 'success');
-                    
+                        `• ${importData.students.length} طالب\n` +
+                        `• ${(importData.departments || []).length} قسم\n` +
+                        `• ${(importData.blockedStudents || []).length} طالب محجوب`, 'success');
+
                 } catch (error) {
                     showStatus('خطأ في استيراد الملف: ' + error.message, 'error');
                 }
             };
-            
+
             reader.readAsText(file);
-            
+
             // Reset file input
             event.target.value = '';
         }
@@ -3014,42 +3135,42 @@
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
+
             if (!username || !password) {
                 showStatus('الرجاء إدخال اسم المستخدم وكلمة المرور', 'error');
                 return;
             }
-            
+
             // Check if user exists in users array
             users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => 
-                (u.email === username || u.name === username) && 
-                u.password === btoa(password) && 
+            const user = users.find(u =>
+                (u.email === username || u.name === username) &&
+                u.password === btoa(password) &&
                 u.status === 'active'
             );
-            
+
             if (user) {
                 // Update last login
                 user.lastLogin = new Date().toLocaleString('ar-SA');
                 localStorage.setItem('users', JSON.stringify(users));
-                
+
                 // Set current user
                 currentUser = user;
                 localStorage.setItem('currentUser', JSON.stringify(user));
-                
+
                 // Hide login screen and show main app
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                
+
                 // Apply user permissions
                 applyUserPermissions(user);
-                
+
                 showStatus(`مرحباً ${user.name}! تم تسجيل الدخول بنجاح`, 'success');
             } else {
                 showStatus('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
             }
         }
-        
+
         function logout() {
             currentUser = null;
             localStorage.removeItem('currentUser');
@@ -3058,57 +3179,57 @@
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
         }
-        
+
         function applyUserPermissions(user) {
             // Hide/show elements based on permissions
             const permissions = user.permissions;
-            
+
             // Student management tabs
             const addStudentTab = document.querySelector('[onclick="showTab(\'add\')"]');
             const listStudentTab = document.querySelector('[onclick="showTab(\'list\')"]');
             const blockStudentTab = document.querySelector('[onclick="showTab(\'block-student\')"]');
-            
+
             if (addStudentTab) addStudentTab.style.display = permissions.add_students ? 'block' : 'none';
             if (listStudentTab) listStudentTab.style.display = permissions.edit_students || permissions.view_statistics ? 'block' : 'none';
             if (blockStudentTab) blockStudentTab.style.display = permissions.block_students ? 'block' : 'none';
-            
+
             // Excel tab
             const excelTab = document.querySelector('[onclick="showTab(\'excel\')"]');
             if (excelTab) excelTab.style.display = (permissions.export_excel || permissions.import_excel) ? 'block' : 'none';
-            
+
             // Settings tab
             const settingsTab = document.querySelector('[onclick="showTab(\'settings\')"]');
             if (settingsTab) settingsTab.style.display = permissions.manage_departments || permissions.manage_users ? 'block' : 'none';
-            
+
             // Statistics tab
             const statisticsTab = document.querySelector('[onclick="showTab(\'statistics\')"]');
             if (statisticsTab) statisticsTab.style.display = permissions.view_statistics ? 'block' : 'none';
-            
+
             // Department management in settings
             const deptManagement = document.querySelector('h4:contains("إدارة الأقسام")');
             if (deptManagement && !permissions.manage_departments) {
                 deptManagement.parentElement.style.display = 'none';
             }
-            
+
             // User management in settings
             const userManagement = document.querySelector('h4:contains("إدارة المستخدمين")');
             if (userManagement && !permissions.manage_users) {
                 userManagement.parentElement.style.display = 'none';
             }
-            
+
             // Backup/restore buttons
             const backupBtn = document.querySelector('button[onclick*="exportAllSettings"]');
             const restoreBtn = document.querySelector('button[onclick*="importAllSettings"]');
             if (backupBtn && !permissions.backup_restore) backupBtn.style.display = 'none';
             if (restoreBtn && !permissions.backup_restore) restoreBtn.style.display = 'none';
-            
+
             // Excel buttons
             const exportExcelBtn = document.querySelector('button[onclick="exportToExcel()"]');
             const importExcelBtn = document.querySelector('button[onclick="importFromExcel()"]');
             if (exportExcelBtn && !permissions.export_excel) exportExcelBtn.style.display = 'none';
             if (importExcelBtn && !permissions.import_excel) importExcelBtn.style.display = 'none';
         }
-        
+
         function checkPermission(permission) {
             if (!currentUser) return false;
             return currentUser.permissions[permission] || false;
@@ -3118,9 +3239,9 @@
             const department = document.getElementById('department').value;
             const studentIdInput = document.getElementById('studentId');
             const currentId = studentIdInput.value;
-            
+
             let prefix = '';
-            switch(department) {
+            switch (department) {
                 case 'التمويل والمصارف':
                     prefix = 'AC';
                     break;
@@ -3142,7 +3263,7 @@
                 default:
                     return;
             }
-            
+
             // If current ID is empty or starts with different prefix, update it
             if (!currentId || !['SE', 'AC', 'CO', 'RE', 'EL', 'ME'].includes(currentId.substring(0, 2))) {
                 // Generate a sample ID with current year and sequence
@@ -3151,7 +3272,7 @@
                 const newId = prefix + currentYear + '2' + sequence.toString().padStart(3, '0');
                 studentIdInput.value = newId;
             }
-            
+
             // Auto-load subjects based on student ID
             autoLoadSubjectsFromId();
         }
@@ -3159,18 +3280,18 @@
         function loadDepartmentSubjects() {
             const department = document.getElementById('department').value;
             const subjectsContainer = document.getElementById('subjectsContainer');
-            
+
             if (!department) {
                 clearSubjectsContainer();
                 return;
             }
-            
+
             // Get departments from localStorage
             const departments = JSON.parse(localStorage.getItem('departments')) || [];
-            
+
             // Check if department exists in custom departments
             const customDept = departments.find(d => d.name === department);
-            
+
             if (customDept) {
                 // Load custom department subjects
                 loadCustomDepartmentSubjects(customDept.code);
@@ -3179,23 +3300,23 @@
                 loadDefaultDepartmentSubjects(department);
             }
         }
-        
+
         function loadCustomDepartmentSubjects(deptCode) {
             const subjectsContainer = document.getElementById('subjectsContainer');
-            
+
             // Get custom subjects for this department
             const customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || {};
             const deptSubjects = customSubjects[deptCode] || [];
-            
+
             if (deptSubjects.length === 0) {
                 // Load default subjects if no custom subjects found
                 loadDefaultSubjects();
                 return;
             }
-            
+
             // Create subject inputs for custom department
             let subjectsHTML = '<h4>📚 مواد القسم:</h4><div class="subjects-grid">';
-            
+
             deptSubjects.forEach(subject => {
                 subjectsHTML += `
                     <div class="subject-item">
@@ -3211,28 +3332,28 @@
                     </div>
                 `;
             });
-            
+
             subjectsHTML += '</div>';
             subjectsContainer.innerHTML = subjectsHTML;
         }
-        
+
         function loadDefaultDepartmentSubjects(department) {
             const subjectsContainer = document.getElementById('subjectsContainer');
-            
+
             // Get subjects from departmentSubjects database
             const subjects = departmentSubjects[department];
-            
+
             if (!subjects || !subjects[currentSemester]) {
                 // Load default empty subjects if no subjects found
                 clearSubjectsContainer();
                 return;
             }
-            
+
             const semesterSubjects = subjects[currentSemester];
-            
+
             // Create subject inputs for default department
             let subjectsHTML = '<h4>📚 مواد القسم:</h4><div class="subjects-grid">';
-            
+
             semesterSubjects.forEach(subject => {
                 subjectsHTML += `
                     <div class="subject-item">
@@ -3248,30 +3369,30 @@
                     </div>
                 `;
             });
-            
+
             subjectsHTML += '</div>';
             subjectsContainer.innerHTML = subjectsHTML;
         }
-        
+
         function loadDefaultSubjects() {
             const subjectsContainer = document.getElementById('subjectsContainer');
-            
+
             // Load default empty subjects
             clearSubjectsContainer();
         }
-        
+
         function updateDepartmentSelect() {
             const departmentSelect = document.getElementById('department');
             const departments = JSON.parse(localStorage.getItem('departments')) || [];
-            
+
             // Get current value
             const currentValue = departmentSelect.value;
-            
+
             // Clear existing options except the first one
             while (departmentSelect.children.length > 1) {
                 departmentSelect.removeChild(departmentSelect.lastChild);
             }
-            
+
             // Add default departments
             const defaultDepts = [
                 { name: 'التمويل والمصارف', code: 'AC' },
@@ -3281,17 +3402,17 @@
                 { name: 'الكهرباء', code: 'EL' },
                 { name: 'الميكانيكا', code: 'ME' }
             ];
-            
+
             // Add all departments (default + custom)
             const allDepts = [...defaultDepts, ...departments];
-            
+
             allDepts.forEach(dept => {
                 const option = document.createElement('option');
                 option.value = dept.name;
                 option.textContent = `${dept.name} (${dept.code})`;
                 departmentSelect.appendChild(option);
             });
-            
+
             // Restore previous selection if it still exists
             if (currentValue && allDepts.find(d => d.name === currentValue)) {
                 departmentSelect.value = currentValue;
@@ -3302,19 +3423,19 @@
         function autoLoadSubjectsFromId() {
             const studentId = document.getElementById('studentId').value;
             const departmentSelect = document.getElementById('department');
-            
+
             if (!studentId || studentId.length < 7) {
                 clearSubjectsContainer();
                 return;
             }
-            
+
             // Parse student ID to get department and semester
             const parsedId = parseStudentId(studentId);
             if (!parsedId) {
                 clearSubjectsContainer();
                 return;
             }
-            
+
             // Update department select if needed
             const departmentMap = {
                 'SE': 'المساحة',
@@ -3324,12 +3445,12 @@
                 'EL': 'الكهرباء',
                 'ME': 'الميكانيكا'
             };
-            
+
             const department = departmentMap[parsedId.prefix];
             if (department && departmentSelect.value !== department) {
                 departmentSelect.value = department;
             }
-            
+
             // Set semester based on student ID OR user selection
             const userSemesterSelect = document.getElementById('userSemesterSelect');
             if (userSemesterSelect && userSemesterSelect.value) {
@@ -3339,7 +3460,7 @@
                 // Use semester from student ID
                 currentSemester = parsedId.semester === '2' ? 2 : 1;
             }
-            
+
             // Update semester buttons
             document.querySelectorAll('.semester-selector button').forEach(btn => {
                 btn.classList.remove('active');
@@ -3348,10 +3469,10 @@
             if (semesterBtn) {
                 semesterBtn.classList.add('active');
             }
-            
+
             // Load subjects automatically
             loadDepartmentSubjectsForGrid();
-            
+
             // Auto-add all subjects for the department and semester
             setTimeout(() => {
                 autoAddAllSubjects();
@@ -3362,10 +3483,10 @@
         function updateSemesterFromUserSelection() {
             const userSemesterSelect = document.getElementById('userSemesterSelect');
             const selectedSemester = userSemesterSelect.value;
-            
+
             if (selectedSemester) {
                 currentSemester = parseInt(selectedSemester);
-                
+
                 // Update semester buttons
                 document.querySelectorAll('.semester-selector button').forEach(btn => {
                     btn.classList.remove('active');
@@ -3374,7 +3495,7 @@
                 if (semesterBtn) {
                     semesterBtn.classList.add('active');
                 }
-                
+
                 // Reload subjects if department is selected
                 const department = document.getElementById('department').value;
                 if (department) {
@@ -3390,15 +3511,15 @@
         function autoAddAllSubjects() {
             const department = document.getElementById('department').value;
             const subjects = departmentSubjects[department]?.[currentSemester] || [];
-            
+
             if (subjects.length === 0) {
                 showStatus('لا توجد مواد لهذا القسم في هذا الفصل', 'error');
                 return;
             }
-            
+
             // Clear existing subjects first
             clearSubjectsContainer();
-            
+
             // Add all subjects automatically
             subjects.forEach((subject, index) => {
                 setTimeout(() => {
@@ -3408,12 +3529,12 @@
                     }
                 }, index * 50); // Small delay for visual effect
             });
-            
+
             // Show success message
             setTimeout(() => {
                 showStatus(`تم إضافة ${subjects.length} مواد بنجاح لقسم ${department} - الفصل ${currentSemester}`, 'success');
             }, subjects.length * 50 + 200);
-            
+
             // Remove any empty subject rows that might be added automatically
             setTimeout(() => {
                 removeEmptySubjectRows();
@@ -3424,7 +3545,7 @@
         function removeEmptySubjectRows() {
             const container = document.getElementById('subjectsContainer');
             const subjectInputs = container.querySelectorAll('.subject-input');
-            
+
             subjectInputs.forEach(input => {
                 const name = input.querySelector('.subject-name').value.trim();
                 if (!name) {
@@ -3455,7 +3576,7 @@
                     <button type="button" class="remove-subject" onclick="removeSubject(this)">حذف</button>
                 </div>
             `;
-            
+
             // Reset selected subjects
             selectedSubjects = [];
         }
@@ -3463,14 +3584,14 @@
         // Parse student ID to get information
         function parseStudentId(studentId) {
             if (!studentId || studentId.length < 7) return null;
-            
+
             const prefix = studentId.substring(0, 2);
             const year = studentId.substring(2, 4);
             const semester = studentId.substring(4, 5);
             const sequence = studentId.substring(5, 8);
-            
+
             let department = '';
-            switch(prefix) {
+            switch (prefix) {
                 case 'SE':
                     department = 'المساحة';
                     break;
@@ -3492,10 +3613,10 @@
                 default:
                     department = 'غير معروف';
             }
-            
+
             const semesterText = semester === '2' ? 'خريف' : 'ربيع';
             const fullYear = '20' + year;
-            
+
             return {
                 prefix: prefix,
                 department: department,
@@ -3513,13 +3634,13 @@
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected tab
             const selectedTab = document.getElementById(tabId);
             if (selectedTab) {
                 selectedTab.classList.add('active');
             }
-            
+
             // Activate tab button
             const tabButtons = document.querySelectorAll('.tab');
             tabButtons.forEach(button => {
@@ -3527,7 +3648,7 @@
                     button.classList.add('active');
                 }
             });
-            
+
             // Load data for specific tabs
             if (tabId === 'list') {
                 loadAllStudents();
@@ -3568,23 +3689,23 @@
             const finalExamInput = subjectDiv.querySelector('.subject-final');
             const totalInput = subjectDiv.querySelector('.subject-total');
             const evaluationSelect = subjectDiv.querySelector('.subject-evaluation');
-            
+
             const classWork = parseFloat(classWorkInput.value) || 0;
             const finalExam = parseFloat(finalExamInput.value) || 0;
-            
+
             // Calculate total
             const total = calculateTotalGrade(classWork, finalExam);
             totalInput.value = total;
-            
+
             // Get evaluation
             const evaluation = getEvaluation(total);
             evaluationSelect.value = evaluation;
-            
+
             // Apply color coding
             const gradeClass = getGradeClass(total);
             totalInput.className = `subject-total ${gradeClass}`;
             evaluationSelect.className = `subject-evaluation ${gradeClass}`;
-            
+
             // Show warning if final exam < 30 and fail rule is enabled
             if (settings.failRuleEnabled && finalExam < 30 && finalExam > 0) {
                 showStatus('تنبيه: درجة الاختبار النهائي أقل من 30، سيتم احتسابها صفر في المجموع', 'warning');
@@ -3601,7 +3722,7 @@
             const total = parseFloat(totalInput.value) || 0;
             const evaluation = getEvaluation(total);
             evaluationSelect.value = evaluation;
-            
+
             // Apply color coding
             const gradeClass = getGradeClass(total);
             totalInput.className = `subject-total ${gradeClass}`;
@@ -3613,8 +3734,8 @@
             const totalInput = evaluationSelect.parentElement.querySelector('.subject-total');
             const evaluation = evaluationSelect.value;
             let total = '';
-            
-            switch(evaluation) {
+
+            switch (evaluation) {
                 case 'ممتاز':
                     total = '85';
                     break;
@@ -3636,9 +3757,9 @@
                 default:
                     total = '';
             }
-            
+
             totalInput.value = total;
-            
+
             // Apply color coding
             const gradeClass = getGradeClass(parseFloat(total) || 0);
             totalInput.className = `subject-total ${gradeClass}`;
@@ -3651,22 +3772,22 @@
             const studentName = document.getElementById('studentName').value.trim();
             const department = document.getElementById('department').value;
             const userSemester = document.getElementById('userSemesterSelect').value;
-            
+
             if (!studentId || !studentName || !department) {
                 showStatus('الرجاء ملء جميع الحقول المطلوبة', 'error');
                 return;
             }
-            
+
             // Get subjects
             const subjects = [];
             const subjectInputs = document.querySelectorAll('#subjectsContainer .subject-input');
-            
+
             subjectInputs.forEach(input => {
                 const name = input.querySelector('.subject-name').value.trim();
                 const units = input.querySelector('.subject-units').value;
                 const classWork = input.querySelector('.subject-classwork').value;
                 const finalExam = input.querySelector('.subject-final').value;
-                
+
                 // Only require name, units, classWork, and finalExam
                 // Total and evaluation will be calculated automatically
                 if (name && units && classWork && finalExam) {
@@ -3681,18 +3802,18 @@
                     });
                 }
             });
-            
+
             if (subjects.length === 0) {
                 showStatus('الرجاء إضافة مادة واحدة على الأقل', 'error');
                 return;
             }
-            
+
             // Check if student already exists
             if (students.find(s => s.id === studentId)) {
                 showStatus('الطالب موجود بالفعل', 'error');
                 return;
             }
-            
+
             // Create student object
             const student = {
                 id: studentId,
@@ -3702,19 +3823,22 @@
                 subjects: subjects,
                 addedDate: new Date().toISOString()
             };
-            
+
             // Add to students array
             students.push(student);
-            
+
             // Save to localStorage
             localStorage.setItem('students', JSON.stringify(students));
-            
+
+            // Sync to Firebase
+            syncToFirebase(student);
+
             // Clear form
             clearForm();
-            
+
             // Show success message
             showStatus(`تم إضافة الطالب ${studentName} بنجاح مع ${subjects.length} مواد`, 'success');
-            
+
             // Refresh student list
             displayStudents();
         }
@@ -3725,7 +3849,7 @@
             document.getElementById('studentName').value = '';
             document.getElementById('department').value = '';
             document.getElementById('userSemesterSelect').value = '';
-            
+
             // Reset subjects to one empty row
             const container = document.getElementById('subjectsContainer');
             container.innerHTML = `
@@ -3747,10 +3871,10 @@
                     <button type="button" class="remove-subject" onclick="removeSubject(this)">حذف</button>
                 </div>
             `;
-            
+
             // Clear subjects grid
             document.getElementById('subjectsGrid').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">أدخل الرقم الدراسي لتحميل المواد تلقائياً</p>';
-            
+
             // Reset selected subjects
             selectedSubjects = [];
         }
@@ -3774,27 +3898,27 @@
             const searchId = document.getElementById('searchId').value.trim();
             const resultsDiv = document.getElementById('searchResults');
             const resultDisplayDiv = document.getElementById('studentResultDisplay');
-            
+
             if (!searchId) {
                 resultsDiv.innerHTML = '<div class="no-results">الرجاء إدخال الرقم الدراسي</div>';
                 resultDisplayDiv.style.display = 'none';
                 return;
             }
-            
+
             // Reload students from localStorage to get latest data
             const students = JSON.parse(localStorage.getItem('students')) || [];
             const student = students.find(s => s.id === searchId);
-            
+
             if (!student) {
                 resultsDiv.innerHTML = '<div class="no-results">الطالب غير موجود</div>';
                 resultDisplayDiv.style.display = 'none';
                 return;
             }
-            
+
             // Check if student is blocked
             const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
             const blocked = blockedStudents.find(b => b.studentId === searchId);
-            
+
             if (blocked) {
                 resultsDiv.innerHTML = `
                     <div class="student-card" style="border: 2px solid #dc3545; background: #fff5f5;">
@@ -3818,7 +3942,7 @@
                 resultDisplayDiv.style.display = 'none';
                 return;
             }
-            
+
             // Display search result
             resultsDiv.innerHTML = `
                 <div class="student-card">
@@ -3830,24 +3954,24 @@
                     <button class="primary" onclick="showSimpleResult('${student.id}')">عرض النتيجة</button>
                 </div>
             `;
-            
+
             resultDisplayDiv.style.display = 'none';
         }
 
         // Load all students
         function loadAllStudents() {
             const listDiv = document.getElementById('allStudentsList');
-            
+
             // Reload students from localStorage to get latest data
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 listDiv.innerHTML = '<div class="no-results">لا توجد بيانات طلاب</div>';
                 return;
             }
-            
+
             let html = '<div class="students-grid">';
-            
+
             students.forEach(student => {
                 const parsedId = parseStudentId(student.id);
                 const idInfo = parsedId ? `
@@ -3855,11 +3979,11 @@
                     <div><strong>سنة التسجيل:</strong> ${parsedId.fullYear} (${parsedId.semesterText})</div>
                     <div><strong>رقم التسلسل:</strong> ${parsedId.sequence}</div>
                 ` : '';
-                
+
                 // Check if student is blocked
                 const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                 const isBlocked = blockedStudents.some(b => b.studentId === student.id);
-                
+
                 html += `
                     <div class="student-card" style="${isBlocked ? 'border: 2px solid #dc3545; background: #fff5f5;' : ''}">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -3885,20 +4009,27 @@
                     </div>
                 `;
             });
-            
+
             html += '</div>';
             listDiv.innerHTML = html;
         }
 
         // Make functions global
-        window.deleteStudent = function(studentId) {
+        window.deleteStudent = function (studentId) {
             if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
                 students = students.filter(s => s.id !== studentId);
                 localStorage.setItem('students', JSON.stringify(students));
-                
+
                 // Refresh students data
                 window.refreshStudents();
-                
+
+                // Remove from Firebase
+                if (db) {
+                    db.collection('students').doc(studentId).delete()
+                        .then(() => console.log('🗑️ Student removed from Cloud'))
+                        .catch(err => console.error('❌ Cloud removal failed:', err));
+                }
+
                 showStatus('تم حذف الطالب بنجاح', 'success');
                 loadAllStudents();
             }
@@ -3910,7 +4041,7 @@
             const students = JSON.parse(localStorage.getItem('students')) || [];
             const student = students.find(s => s.id === studentId);
             if (!student) return;
-            
+
             const resultsDiv = document.getElementById('searchResults');
             const parsedId = parseStudentId(student.id);
             const idInfo = parsedId ? `
@@ -3918,10 +4049,10 @@
                 <div><strong>سنة التسجيل:</strong> ${parsedId.fullYear} (${parsedId.semesterText})</div>
                 <div><strong>رقم التسلسل:</strong> ${parsedId.sequence}</div>
             ` : '';
-            
+
             // Create subjects table
             let subjectsHtml = '<table class="grades-table"><thead><tr><th>م</th><th>اسم المادة</th><th>وحدات</th><th>أعمال الفصل</th><th>الاختبار النهائي</th><th>المجموع</th><th>التقدير</th></tr></thead><tbody>';
-            
+
             student.subjects.forEach((subject, index) => {
                 const isFailed = subject.name.includes('(مطالب)');
                 const gradeClass = getGradeClass(subject.total);
@@ -3937,9 +4068,9 @@
                     </tr>
                 `;
             });
-            
+
             subjectsHtml += '</tbody></table>';
-            
+
             resultsDiv.innerHTML = `
                 <div class="student-card">
                     <h3>${student.name}</h3>
@@ -3964,17 +4095,17 @@
             if (!student.subjects || student.subjects.length === 0) {
                 return 0;
             }
-            
+
             let totalUnits = 0;
             let totalWeightedGrade = 0;
-            
+
             student.subjects.forEach(subject => {
                 if (subject && typeof subject.total === 'number' && typeof subject.units === 'number') {
                     totalUnits += subject.units;
                     totalWeightedGrade += (subject.total * subject.units);
                 }
             });
-            
+
             return totalUnits > 0 ? (totalWeightedGrade / totalUnits).toFixed(2) : 0;
         }
 
@@ -3983,12 +4114,12 @@
             if (!student.subjects || student.subjects.length === 0) {
                 return false;
             }
-            
+
             return student.subjects.some(subject => {
-                return subject && 
-                       subject.name && 
-                       subject.name.includes('(مطالب)') && 
-                       subject.total < 50;
+                return subject &&
+                    subject.name &&
+                    subject.name.includes('(مطالب)') &&
+                    subject.total < 50;
             });
         }
 
@@ -3997,10 +4128,10 @@
             const studentGPA = parseFloat(calculateStudentGPA(student));
             const failedSubjects = student.subjects ? student.subjects.filter(s => s.total < 50).length : 0;
             const hasFailedRequired = hasFailedRequiredSubject(student);
-            
+
             // Check if required subject rule is enabled
             const ruleEnabled = settings.requiredSubjectRuleEnabled !== false; // Default to true
-            
+
             // New rule: If student failed any "مطالب" subject AND rule is enabled, they fail regardless of other conditions
             if (hasFailedRequired && ruleEnabled) {
                 return {
@@ -4011,10 +4142,10 @@
                     hasFailedRequired: true
                 };
             }
-            
+
             // Original rule: Pass if failed subjects <= 2 AND GPA >= 50
             const passed = failedSubjects <= 2 && studentGPA >= 50;
-            
+
             return {
                 passed: passed,
                 reason: passed ? 'منقول' : 'راسب',
@@ -4029,17 +4160,17 @@
             // Reload students from localStorage to get latest data
             const students = JSON.parse(localStorage.getItem('students')) || [];
             const student = students.find(s => s.id === studentId);
-            
+
             if (!student) {
                 alert('الطالب غير موجود');
                 return;
             }
-            
+
             // Find the student card by ID and insert result after it
             const studentCards = document.querySelectorAll('.student-card');
             let targetCard = null;
             let targetIndex = -1;
-            
+
             for (let i = 0; i < studentCards.length; i++) {
                 const cardHtml = studentCards[i].innerHTML;
                 if (cardHtml.includes(studentId)) {
@@ -4048,7 +4179,7 @@
                     break;
                 }
             }
-            
+
             if (targetCard) {
                 // Calculate actual GPA and evaluation using new semester status function
                 const semesterStatus = calculateSemesterStatus(student);
@@ -4058,7 +4189,7 @@
                 const failedSubjects = semesterStatus.failedSubjects;
                 const isSemesterPassed = semesterStatus.passed;
                 const statusReason = semesterStatus.reason;
-                
+
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'result';
                 resultDiv.innerHTML = `
@@ -4095,9 +4226,9 @@
                                     <td style="padding: 10px; border: none; text-align: center; font-weight: bold; color: ${subject.total >= 50 ? '#059669' : '#dc2626'};">${subject.total}</td>
                                     <td style="padding: 10px; border: none; text-align: center; color: #374151;">${subject.evaluation}</td>
                                     <td style="padding: 10px; border: none; text-align: center;">
-                                        ${subject.total >= 50 ? 
-                                            '<span style="color: #059669; font-weight: bold;">✅ ناجح</span>' : 
-                                            '<span style="color: #dc2626; font-weight: bold;">❌ راسب</span>'}
+                                        ${subject.total >= 50 ?
+                        '<span style="color: #059669; font-weight: bold;">✅ ناجح</span>' :
+                        '<span style="color: #dc2626; font-weight: bold;">❌ راسب</span>'}
                                     </td>
                                 </tr>
                             `).join('') : ''}
@@ -4116,47 +4247,56 @@
                         <button class="button danger" onclick="this.parentElement.parentElement.remove()" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">إغلاق</button>
                     </div>
                 `;
-                
+
                 // Remove any existing result for this student
                 const existingResults = targetCard.parentElement.querySelectorAll('.result');
                 existingResults.forEach(r => r.remove());
-                
+
                 // Insert result after the student card
                 targetCard.parentNode.insertBefore(resultDiv, targetCard.nextSibling);
-                
+
                 // Scroll to result
                 resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
-        
+
         function deleteSimpleStudent(studentId) {
             // Reload students from localStorage to get latest data
             const students = JSON.parse(localStorage.getItem('students')) || [];
             const student = students.find(s => s.id === studentId);
-            
+
             if (!student) {
                 alert('الطالب غير موجود');
                 return;
             }
-            
+
             if (confirm('هل أنت متأكد من حذف الطالب ' + student.name + '؟')) {
                 const updatedStudents = students.filter(s => s.id !== studentId);
                 localStorage.setItem('students', JSON.stringify(updatedStudents));
-                
+
                 // Refresh students data
                 window.refreshStudents();
-                
+
                 loadAllStudents();
                 alert('تم حذف الطالب بنجاح');
             }
         }
-        
+
         // Generate student search link function
         function generateStudentSearchLink() {
             // Get current URL directory
-            const currentUrl = window.location.origin + window.location.pathname;
-            const urlPath = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/student_search.html';
-            
+            // If hosted on Firebase, use the proper hosting domain
+            let urlPath;
+            if (window.location.hostname.includes('firebaseapp.com')) {
+                urlPath = window.location.origin + '/student_search.html';
+            } else {
+                const currentUrl = window.location.origin + window.location.pathname;
+                urlPath = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/student_search.html';
+            }
+
+            // Batch sync all to cloud before generating link (optional but good)
+            syncToFirebase();
+
             // Create modal to show the link
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -4171,7 +4311,7 @@
                 align-items: center;
                 z-index: 10000;
             `;
-            
+
             modal.innerHTML = `
                 <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                     <h2 style="color: #3b82f6; margin-bottom: 20px;">🔗 رابط البحث عن النتيجة للطلاب</h2>
@@ -4207,9 +4347,9 @@
                     <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">يمكن مشاركة هذا الرابط مع جميع الطلاب</p>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
-            
+
             // Auto-select the link text
             setTimeout(() => {
                 const linkInput = document.getElementById('linkInput');
@@ -4219,7 +4359,7 @@
                 }
             }, 100);
         }
-        
+
         // Copy link to clipboard
         function copyLink(link) {
             navigator.clipboard.writeText(link).then(() => {
@@ -4235,41 +4375,41 @@
                 alert('✅ تم نسخ الرابط بنجاح!');
             });
         }
-        
+
         // Test link in new window
         function testLink(link) {
             window.open(link, '_blank');
         }
 
         // Make functions global - simplified version
-        window.displayStudentResult = function(studentId) {
+        window.displayStudentResult = function (studentId) {
             console.log('=== displayStudentResult START ===');
             console.log('Student ID:', studentId);
             console.log('Students array:', students);
             console.log('Students length:', students.length);
-            
+
             const student = students.find(s => s.id === studentId);
             console.log('Found student:', student);
-            
+
             if (!student) {
                 console.log('Student not found!');
                 alert('الطالب غير موجود');
                 return;
             }
-            
+
             console.log('Student found, name:', student.name);
-            
+
             const resultDisplayDiv = document.getElementById('studentResultDisplay');
             console.log('Display element:', resultDisplayDiv);
-            
+
             if (!resultDisplayDiv) {
                 console.log('Display element not found!');
                 alert('عنصر العرض غير موجود');
                 return;
             }
-            
+
             console.log('Creating HTML content...');
-            
+
             // Very simple display
             const htmlContent = `
                 <div style="padding: 20px; background: #e8f4fd; border: 3px solid #007bff; border-radius: 15px; margin: 20px;">
@@ -4286,16 +4426,16 @@
                     </div>
                 </div>
             `;
-            
+
             console.log('Setting innerHTML...');
             resultDisplayDiv.innerHTML = htmlContent;
-            
+
             console.log('Making it visible...');
             resultDisplayDiv.style.display = 'block';
-            
+
             console.log('Scrolling to element...');
             resultDisplayDiv.scrollIntoView({ behavior: 'smooth' });
-            
+
             console.log('=== displayStudentResult END ===');
         };
 
@@ -4303,26 +4443,26 @@
         function blockStudent() {
             const studentId = document.getElementById('blockStudentId').value.trim();
             const reason = document.getElementById('blockReason').value.trim();
-            
+
             if (!studentId) {
                 showStatus('الرجاء إدخال الرقم الدراسي', 'error');
                 return;
             }
-            
+
             if (!reason) {
                 showStatus('الرجاء إدخال سبب الحجب', 'error');
                 return;
             }
-            
+
             const student = students.find(s => s.id === studentId);
             if (!student) {
                 showStatus('الطالب غير موجود', 'error');
                 return;
             }
-            
+
             // Get existing blocked students or create new array
             let blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
-            
+
             // Check if already blocked
             const existingBlock = blockedStudents.find(b => b.studentId === studentId);
             if (existingBlock) {
@@ -4336,56 +4476,56 @@
                     date: new Date().toISOString()
                 });
             }
-            
+
             localStorage.setItem('blockedStudents', JSON.stringify(blockedStudents));
             showStatus('تم حجب نتيجة الطالب بنجاح', 'success');
-            
+
             // Clear form
             document.getElementById('blockStudentId').value = '';
             document.getElementById('blockReason').value = '';
-            
+
             // Update lists
             loadBlockedStudents();
         }
-        
+
         function unblockStudent() {
             const studentId = document.getElementById('blockStudentId').value.trim();
-            
+
             if (!studentId) {
                 showStatus('الرجاء إدخال الرقم الدراسي', 'error');
                 return;
             }
-            
+
             let blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
             const initialLength = blockedStudents.length;
-            
+
             blockedStudents = blockedStudents.filter(b => b.studentId !== studentId);
-            
+
             if (blockedStudents.length === initialLength) {
                 showStatus('الطالب غير محجوب أصلاً', 'warning');
                 return;
             }
-            
+
             localStorage.setItem('blockedStudents', JSON.stringify(blockedStudents));
             showStatus('تم إلغاء حجب نتيجة الطالب بنجاح', 'success');
-            
+
             // Clear form and update lists
             document.getElementById('blockStudentId').value = '';
             loadBlockedStudents();
         }
-        
+
         function checkBlockedStatus() {
             const studentId = document.getElementById('blockStudentId').value.trim();
             const statusDiv = document.getElementById('blockStatus');
-            
+
             if (!studentId) {
                 statusDiv.innerHTML = '<div class="no-results">الرجاء إدخال الرقم الدراسي</div>';
                 return;
             }
-            
+
             const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
             const blocked = blockedStudents.find(b => b.studentId === studentId);
-            
+
             if (blocked) {
                 statusDiv.innerHTML = `
                     <div class="alert alert-danger" style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; border: 1px solid #f5c6cb;">
@@ -4405,16 +4545,16 @@
                 `;
             }
         }
-        
+
         function loadBlockedStudents() {
             const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
             const listDiv = document.getElementById('blockedStudentsList');
-            
+
             if (blockedStudents.length === 0) {
                 listDiv.innerHTML = '<div class="no-results">لا يوجد طلاب محجوبون</div>';
                 return;
             }
-            
+
             let html = `
                 <table class="students-table" style="margin-top: 15px;">
                     <thead>
@@ -4428,7 +4568,7 @@
                     </thead>
                     <tbody>
             `;
-            
+
             blockedStudents.forEach(blocked => {
                 html += `
                     <tr>
@@ -4442,16 +4582,16 @@
                     </tr>
                 `;
             });
-            
+
             html += '</tbody></table>';
             listDiv.innerHTML = html;
         }
-        
+
         function unblockStudentById(studentId) {
             document.getElementById('blockStudentId').value = studentId;
             unblockStudent();
         }
-        
+
         // Print All Functions
         function printAllStudents() {
             try {
@@ -4459,21 +4599,21 @@
                 const sortByDepartment = document.getElementById('sortByDepartment').checked;
                 const sortBySemester = document.getElementById('sortBySemester').checked;
                 const departmentFilter = document.getElementById('departmentFilter').value;
-                
+
                 let studentsToPrint = [...students];
-                
+
                 // Filter by department
                 if (departmentFilter) {
                     studentsToPrint = studentsToPrint.filter(s => s.department === departmentFilter);
                 }
-                
+
                 // Filter blocked students
                 if (!includeBlocked) {
                     const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                     const blockedIds = blockedStudents.map(b => b.studentId);
                     studentsToPrint = studentsToPrint.filter(s => !blockedIds.includes(s.id));
                 }
-                
+
                 // Sort students
                 if (sortByDepartment) {
                     studentsToPrint.sort((a, b) => {
@@ -4489,27 +4629,27 @@
                         return semA.localeCompare(semB);
                     });
                 }
-                
+
                 if (studentsToPrint.length === 0) {
                     alert('لا يوجد طلاب للطباعة');
                     return;
                 }
-                
+
                 // Generate print content - each student on separate page
                 let printContent = `
                     <div style="direction: rtl; font-family: Arial, sans-serif; padding: 10px;">
                 `;
-                
+
                 studentsToPrint.forEach((student, index) => {
                     // Check if student exists and has required properties
                     if (!student || !student.id || !student.subjects) {
                         console.warn('Skipping invalid student:', student);
                         return;
                     }
-                    
+
                     const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                     const isBlocked = blockedStudents.some(b => b.studentId === student.id);
-                    
+
                     // Calculate GPA
                     let totalUnits = 0;
                     let totalClassWork = 0;
@@ -4518,7 +4658,7 @@
                     let totalWeightedGrade = 0;
                     let passedSubjects = 0;
                     let failedSubjects = 0;
-                    
+
                     if (Array.isArray(student.subjects)) {
                         student.subjects.forEach(subject => {
                             if (subject && typeof subject.total === 'number' && typeof subject.units === 'number') {
@@ -4527,7 +4667,7 @@
                                 totalFinal += subject.finalExam || 0;
                                 totalGrade += subject.total;
                                 totalWeightedGrade += (subject.total * subject.units);
-                                
+
                                 // Check pass/fail status
                                 if (subject.total >= 50 && (subject.finalExam || 0) >= 30) {
                                     passedSubjects++;
@@ -4537,17 +4677,17 @@
                             }
                         });
                     }
-                    
+
                     const semesterGPA = totalUnits > 0 ? (totalWeightedGrade / totalUnits).toFixed(2) : 0;
                     const evaluation = getEvaluation(parseFloat(semesterGPA));
                     const semesterStatus = calculateSemesterStatus(student);
                     const isSemesterPassed = semesterStatus.passed;
-                    
+
                     // Start new page for each student (except first)
                     if (index > 0) {
                         printContent += `<div style="page-break-before: always;"></div>`;
                     }
-                    
+
                     printContent += `
                         <div style="display: flex; flex-direction: column;">
                             <!-- Header -->
@@ -4615,16 +4755,16 @@
                                     </thead>
                                     <tbody>
                     `;
-                    
+
                     if (Array.isArray(student.subjects)) {
                         student.subjects.forEach((subject, subjectIndex) => {
                             if (!subject) return;
-                            
+
                             const isFailed = subject.name && subject.name.includes('(مطالب)') || (subject.total < 50) || ((subject.finalExam || 0) < 30);
                             const statusClass = isFailed ? 'status-fail' : 'status-pass';
                             const statusText = isFailed ? 'راسب' : 'ناجح';
                             const statusIcon = isFailed ? '❌' : '✅';
-                            
+
                             printContent += `
                                         <tr style="${isFailed ? 'background: #fff5f5;' : 'background: #f8f9fa;'}">
                                             <td style="padding: 8px 5px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${subjectIndex + 1}</td>
@@ -4639,7 +4779,7 @@
                             `;
                         });
                     }
-                    
+
                     printContent += `
                                         <tr style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); font-weight: bold;">
                                             <td colspan="2" style="padding: 10px 5px; border: 1px solid #ddd; text-align: center; font-size: 12px;">المجموع</td>
@@ -4664,11 +4804,11 @@
                         </div>
                     `;
                 });
-                
+
                 printContent += `
                     </div>
                 `;
-                
+
                 // Print in new window
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -4686,32 +4826,32 @@
                 printWindow.document.close();
                 printWindow.print();
                 printWindow.close();
-                
+
             } catch (error) {
                 console.error('Error in printAllStudents:', error);
                 alert('حدث خطأ في الطباعة: ' + error.message);
             }
         }
-        
+
         function previewPrintAll() {
             try {
                 const previewDiv = document.getElementById('printPreview');
                 const includeBlocked = document.getElementById('includeBlocked').checked;
                 const departmentFilter = document.getElementById('departmentFilter').value;
-                
+
                 let studentsToPrint = [...students];
-                
+
                 // Apply filters
                 if (departmentFilter) {
                     studentsToPrint = studentsToPrint.filter(s => s.department === departmentFilter);
                 }
-                
+
                 if (!includeBlocked) {
                     const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                     const blockedIds = blockedStudents.map(b => b.studentId);
                     studentsToPrint = studentsToPrint.filter(s => !blockedIds.includes(s.id));
                 }
-                
+
                 previewDiv.innerHTML = `
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; border: 1px solid #dee2e6;">
                         <h4 style="margin: 0 0 10px 0; color: #495057;">👁️ معاينة الطباعة</h4>
@@ -4726,27 +4866,27 @@
                 alert('حدث خطأ في المعاينة: ' + error.message);
             }
         }
-        
+
         function exportToPDF() {
             try {
                 const includeBlocked = document.getElementById('includeBlocked').checked;
                 const sortByDepartment = document.getElementById('sortByDepartment').checked;
                 const sortBySemester = document.getElementById('sortBySemester').checked;
                 const departmentFilter = document.getElementById('departmentFilter').value;
-                
+
                 let studentsToPrint = [...students];
-                
+
                 // Apply same filters as print
                 if (departmentFilter) {
                     studentsToPrint = studentsToPrint.filter(s => s.department === departmentFilter);
                 }
-                
+
                 if (!includeBlocked) {
                     const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                     const blockedIds = blockedStudents.map(b => b.studentId);
                     studentsToPrint = studentsToPrint.filter(s => !blockedIds.includes(s.id));
                 }
-                
+
                 if (sortByDepartment) {
                     studentsToPrint.sort((a, b) => {
                         const deptA = a.department || '';
@@ -4761,12 +4901,12 @@
                         return semA.localeCompare(semB);
                     });
                 }
-                
+
                 if (studentsToPrint.length === 0) {
                     alert('لا يوجد طلاب للتصدير');
                     return;
                 }
-                
+
                 // Generate PDF content using window.print() as fallback
                 let pdfContent = `
                     <div style="direction: rtl; font-family: Arial, sans-serif; padding: 10px;">
@@ -4791,20 +4931,20 @@
                             </thead>
                             <tbody>
                 `;
-                
+
                 studentsToPrint.forEach((student, index) => {
                     if (!student || !student.id || !student.subjects) {
                         console.warn('Skipping invalid student:', student);
                         return;
                     }
-                    
+
                     const blockedStudents = JSON.parse(localStorage.getItem('blockedStudents') || '[]');
                     const isBlocked = blockedStudents.some(b => b.studentId === student.id);
-                    
+
                     // Calculate GPA
                     let totalWeightedGrade = 0;
                     let totalUnits = 0;
-                    
+
                     if (Array.isArray(student.subjects)) {
                         student.subjects.forEach(subject => {
                             if (subject && typeof subject.total === 'number' && typeof subject.units === 'number') {
@@ -4813,10 +4953,10 @@
                             }
                         });
                     }
-                    
+
                     const semesterGPA = totalUnits > 0 ? (totalWeightedGrade / totalUnits).toFixed(2) : 0;
                     const evaluation = getEvaluation(parseFloat(semesterGPA));
-                    
+
                     pdfContent += `
                         <tr style="border-bottom: 1px solid #ddd;">
                             <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
@@ -4830,7 +4970,7 @@
                         </tr>
                     `;
                 });
-                
+
                 pdfContent += `
                             </tbody>
                         </table>
@@ -4843,7 +4983,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Open in new window for PDF printing
                 const pdfWindow = window.open('', '_blank');
                 pdfWindow.document.write(`
@@ -4867,7 +5007,7 @@
                     </html>
                 `);
                 pdfWindow.document.close();
-                
+
             } catch (error) {
                 console.error('Error in exportToPDF:', error);
                 alert('حدث خطأ في التصدير: ' + error.message);
@@ -4878,7 +5018,7 @@
         function printStudentResult() {
             const printContent = document.getElementById('studentResultDisplay').innerHTML;
             const originalContent = document.body.innerHTML;
-            
+
             document.body.innerHTML = `
                 <div style="direction: rtl; font-family: Arial, sans-serif; padding: 8px; height: 100vh; display: flex; flex-direction: column;">
                     <!-- Header with logo and semester -->
@@ -4897,10 +5037,10 @@
                     </div>
                 </div>
             `;
-            
+
             window.print();
             document.body.innerHTML = originalContent;
-            
+
             // Reload the page to restore functionality
             location.reload();
         }
@@ -4909,7 +5049,7 @@
         function exportToExcel() {
             // Get latest students data
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 showStatus('لا يوجد طلاب لتصديرهم', 'error');
                 return;
@@ -4917,7 +5057,7 @@
 
             // Create workbook
             const wb = XLSX.utils.book_new();
-            
+
             // Create comprehensive worksheet data
             const wsData = [
                 ['الرقم الدراسي', 'اسم الطالب', 'القسم', 'الفصل', 'المادة', 'الوحدات', 'أعمال الفصل', 'الاختبار النهائي', 'المجموع', 'التقدير', 'GPA', 'الحالة', 'تاريخ الإضافة']
@@ -4925,11 +5065,11 @@
 
             students.forEach(student => {
                 if (!student.subjects || student.subjects.length === 0) return;
-                
+
                 // Calculate GPA and status for this student
                 const gpa = calculateStudentGPA(student);
                 const status = getStudentStatus(student);
-                
+
                 student.subjects.forEach(subject => {
                     wsData.push([
                         student.id || '',
@@ -4951,7 +5091,7 @@
 
             // Create worksheet
             const ws = XLSX.utils.aoa_to_sheet(wsData);
-            
+
             // Set column widths for better display
             ws['!cols'] = [
                 { width: 15 }, // الرقم الدراسي
@@ -4968,30 +5108,30 @@
                 { width: 10 }, // الحالة
                 { width: 20 }  // تاريخ الإضافة
             ];
-            
+
             // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'بيانات الطلاب');
-            
+
             // Save file with timestamp
             const fileName = `students_export_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, fileName);
-            
+
             showStatus(`تم تصدير بيانات ${students.length} طالب إلى Excel بنجاح`, 'success');
         }
 
         function getStudentStatus(student) {
             if (!student.subjects || student.subjects.length === 0) return 'غير محدد';
-            
+
             const failedSubjects = student.subjects.filter(s => s.total < 50).length;
             const gpa = parseFloat(calculateStudentGPA(student));
-            
+
             return failedSubjects <= 2 && gpa >= 50 ? 'منقول' : 'راسب';
         }
 
         function downloadTemplate() {
             // Create comprehensive template workbook
             const wb = XLSX.utils.book_new();
-            
+
             // Create enhanced template data with all fields
             const templateData = [
                 ['الرقم الدراسي', 'اسم الطالب', 'القسم', 'الفصل', 'المادة', 'الوحدات', 'أعمال الفصل', 'الاختبار النهائي', 'المجموع', 'التقدير', 'GPA', 'الحالة', 'تاريخ الإضافة'],
@@ -5003,7 +5143,7 @@
 
             // Create worksheet
             const ws = XLSX.utils.aoa_to_sheet(templateData);
-            
+
             // Set column widths
             ws['!cols'] = [
                 { width: 15 }, // الرقم الدراسي
@@ -5020,62 +5160,62 @@
                 { width: 10 }, // الحالة
                 { width: 20 }  // تاريخ الإضافة
             ];
-            
+
             // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'قالب البيانات');
-            
+
             // Save file
             XLSX.writeFile(wb, 'students_comprehensive_template.xlsx');
-            
+
             showStatus('تم تحميل القالب الشامل بنجاح', 'success');
         }
 
         function importFromExcel() {
             const fileInput = document.getElementById('excelFileInput');
             const file = fileInput.files[0];
-            
+
             if (!file) {
                 showStatus('الرجاء اختيار ملف Excel أولاً', 'error');
                 return;
             }
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    
+
                     // Get first worksheet
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
-                    
+
                     // Convert to JSON
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
+
                     if (jsonData.length < 2) {
                         showStatus('ملف Excel فارغ أو لا يحتوي على بيانات', 'error');
                         return;
                     }
-                    
+
                     // Process imported data with enhanced validation
                     let importedCount = 0;
                     let skippedCount = 0;
                     let errorCount = 0;
                     const errors = [];
-                    
+
                     // Get current students from localStorage
                     const currentStudents = JSON.parse(localStorage.getItem('students')) || [];
-                    
+
                     // Skip header row and process data
                     for (let i = 1; i < jsonData.length; i++) {
                         const row = jsonData[i];
-                        
+
                         if (row.length < 9) {
                             errorCount++;
                             errors.push(`صف ${i + 1}: بيانات ناقصة`);
                             continue;
                         }
-                        
+
                         const studentId = String(row[0] || '').trim();
                         const studentName = String(row[1] || '').trim();
                         const department = String(row[2] || '').trim();
@@ -5089,32 +5229,32 @@
                         const gpa = String(row[10] || '').trim();
                         const status = String(row[11] || '').trim();
                         const addedDate = String(row[12] || '').trim();
-                        
+
                         // Validate required fields
                         if (!studentId || !studentName || !department || !subjectName || units <= 0) {
                             errorCount++;
                             errors.push(`صف ${i + 1}: بيانات أساسية مفقودة (الرقم الدراسي، الاسم، القسم، المادة، الوحدات)`);
                             continue;
                         }
-                        
+
                         // Validate student ID format
                         if (!/^[A-Z]{2}\d{6}$/.test(studentId)) {
                             errorCount++;
                             errors.push(`صف ${i + 1}: الرقم الدراسي غير صحيح (يجب أن يكون مثل: SE242001)`);
                             continue;
                         }
-                        
+
                         // Validate units range
                         if (units < 1 || units > 6) {
                             errorCount++;
                             errors.push(`صف ${i + 1}: عدد الوحدات يجب أن يكون بين 1 و 6`);
                             continue;
                         }
-                        
+
                         try {
                             // Check if student exists
                             let student = currentStudents.find(s => s.id === studentId);
-                            
+
                             if (!student) {
                                 // Create new student
                                 student = {
@@ -5127,10 +5267,10 @@
                                 };
                                 currentStudents.push(student);
                             }
-                            
+
                             // Check if subject exists for this student
                             const existingSubject = student.subjects.find(s => s.name === subjectName);
-                            
+
                             if (!existingSubject) {
                                 // Calculate total if not provided
                                 let calculatedTotal = total;
@@ -5139,13 +5279,13 @@
                                     const fe = parseFloat(finalExam) || 0;
                                     calculatedTotal = (cw + fe).toString();
                                 }
-                                
+
                                 // Calculate evaluation if not provided
                                 let calculatedEvaluation = evaluation;
                                 if (!evaluation || evaluation === '') {
                                     calculatedEvaluation = getEvaluation(parseFloat(calculatedTotal));
                                 }
-                                
+
                                 student.subjects.push({
                                     name: subjectName,
                                     units: units,
@@ -5163,13 +5303,13 @@
                             errors.push(`صف ${i + 1}: خطأ في معالجة البيانات - ${error.message}`);
                         }
                     }
-                    
+
                     // Save to localStorage
                     localStorage.setItem('students', JSON.stringify(currentStudents));
-                    
+
                     // Refresh global students variable
                     window.refreshStudents();
-                    
+
                     // Show detailed results
                     const resultsDiv = document.getElementById('importResults');
                     let resultsHTML = `
@@ -5180,7 +5320,7 @@
                             <p>❌ حدث ${errorCount} خطأ</p>
                         </div>
                     `;
-                    
+
                     if (errors.length > 0) {
                         resultsHTML += `
                             <div class="status-message error" style="margin-top: 10px;">
@@ -5192,24 +5332,24 @@
                             </div>
                         `;
                     }
-                    
+
                     resultsDiv.innerHTML = resultsHTML;
-                    
-                    showStatus(`اكتمل الاستيراد: ${importedCount} مواد، ${skippedCount} مكررة، ${errorCount} أخطاء`, 
-                              errorCount > 0 ? 'warning' : 'success');
-                    
+
+                    showStatus(`اكتمل الاستيراد: ${importedCount} مواد، ${skippedCount} مكررة، ${errorCount} أخطاء`,
+                        errorCount > 0 ? 'warning' : 'success');
+
                 } catch (error) {
                     showStatus('خطأ في قراءة ملف Excel: ' + error.message, 'error');
                 }
             };
-            
+
             reader.readAsArrayBuffer(file);
         }
 
         function exportStatisticsToExcel() {
             // Get latest students data
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 showStatus('لا يوجد طلاب لتصدير إحصائياتهم', 'error');
                 return;
@@ -5217,38 +5357,38 @@
 
             // Create workbook
             const wb = XLSX.utils.book_new();
-            
+
             // Calculate statistics by department
             const departmentStats = {};
             let totalPassed = 0;
             let totalFailed = 0;
             let totalStudents = students.length;
-            
+
             students.forEach(student => {
                 const dept = student.department || 'غير محدد';
                 if (!departmentStats[dept]) {
-                    departmentStats[dept] = { 
-                        total: 0, 
-                        passed: 0, 
-                        failed: 0, 
-                        avgGPA: 0, 
+                    departmentStats[dept] = {
+                        total: 0,
+                        passed: 0,
+                        failed: 0,
+                        avgGPA: 0,
                         totalGPA: 0,
                         subjects: 0,
                         passedSubjects: 0,
                         failedSubjects: 0
                     };
                 }
-                
+
                 departmentStats[dept].total++;
-                
+
                 // Calculate student GPA
                 const studentGPA = parseFloat(calculateStudentGPA(student));
                 departmentStats[dept].totalGPA += studentGPA;
-                
+
                 // Check if student passed (new logic with "مطالب" rule)
                 const semesterStatus = calculateSemesterStatus(student);
                 const isPassed = semesterStatus.passed;
-                
+
                 if (isPassed) {
                     departmentStats[dept].passed++;
                     totalPassed++;
@@ -5256,7 +5396,7 @@
                     departmentStats[dept].failed++;
                     totalFailed++;
                 }
-                
+
                 // Count subjects
                 if (student.subjects) {
                     departmentStats[dept].subjects += student.subjects.length;
@@ -5264,22 +5404,22 @@
                     departmentStats[dept].failedSubjects += student.subjects.filter(s => s.total < 50).length;
                 }
             });
-            
+
             // Calculate averages
             Object.keys(departmentStats).forEach(dept => {
                 if (departmentStats[dept].total > 0) {
                     departmentStats[dept].avgGPA = (departmentStats[dept].totalGPA / departmentStats[dept].total).toFixed(2);
                     departmentStats[dept].passRate = ((departmentStats[dept].passed / departmentStats[dept].total) * 100).toFixed(1) + '%';
-                    departmentStats[dept].subjectPassRate = departmentStats[dept].subjects > 0 ? 
+                    departmentStats[dept].subjectPassRate = departmentStats[dept].subjects > 0 ?
                         ((departmentStats[dept].passedSubjects / departmentStats[dept].subjects) * 100).toFixed(1) + '%' : '0%';
                 }
             });
-            
+
             // Create statistics worksheet data
             const statsData = [
                 ['القسم', 'إجمالي الطلاب', 'الناجحون', 'الراسبون', 'نسبة النجاح', 'معدل GPA', 'إجمالي المواد', 'المواد الناجحة', 'المواد الراسبة', 'نسبة نجاح المواد']
             ];
-            
+
             Object.keys(departmentStats).forEach(dept => {
                 const stats = departmentStats[dept];
                 statsData.push([
@@ -5295,15 +5435,15 @@
                     stats.subjectPassRate
                 ]);
             });
-            
+
             // Add totals row
-            const overallAvgGPA = students.length > 0 ? 
+            const overallAvgGPA = students.length > 0 ?
                 (Object.values(departmentStats).reduce((sum, dept) => sum + dept.totalGPA, 0) / students.length).toFixed(2) : 0;
             const totalSubjects = Object.values(departmentStats).reduce((sum, dept) => sum + dept.subjects, 0);
             const totalPassedSubjects = Object.values(departmentStats).reduce((sum, dept) => sum + dept.passedSubjects, 0);
             const overallPassRate = totalStudents > 0 ? ((totalPassed / totalStudents) * 100).toFixed(1) + '%' : '0%';
             const overallSubjectPassRate = totalSubjects > 0 ? ((totalPassedSubjects / totalSubjects) * 100).toFixed(1) + '%' : '0%';
-            
+
             statsData.push([
                 'الإجمالي',
                 totalStudents,
@@ -5316,10 +5456,10 @@
                 totalSubjects - totalPassedSubjects,
                 overallSubjectPassRate
             ]);
-            
+
             // Create worksheet
             const ws = XLSX.utils.aoa_to_sheet(statsData);
-            
+
             // Set column widths
             ws['!cols'] = [
                 { width: 20 }, // القسم
@@ -5333,21 +5473,21 @@
                 { width: 15 }, // المواد الراسبة
                 { width: 18 }  // نسبة نجاح المواد
             ];
-            
+
             // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'إحصائيات الأقسام');
-            
+
             // Create detailed students worksheet
             const detailedData = [
                 ['الرقم الدراسي', 'اسم الطالب', 'القسم', 'الفصل', 'GPA', 'الحالة', 'عدد المواد', 'المواد الناجحة', 'المواد الراسبة', 'تاريخ الإضافة']
             ];
-            
+
             students.forEach(student => {
                 const gpa = calculateStudentGPA(student);
                 const status = getStudentStatus(student);
                 const passedSubjects = student.subjects ? student.subjects.filter(s => s.total >= 50).length : 0;
                 const failedSubjects = student.subjects ? student.subjects.filter(s => s.total < 50).length : 0;
-                
+
                 detailedData.push([
                     student.id || '',
                     student.name || '',
@@ -5361,19 +5501,19 @@
                     student.addedDate || ''
                 ]);
             });
-            
+
             const ws2 = XLSX.utils.aoa_to_sheet(detailedData);
             ws2['!cols'] = [
                 { width: 15 }, { width: 20 }, { width: 15 }, { width: 10 }, { width: 10 },
                 { width: 10 }, { width: 12 }, { width: 15 }, { width: 15 }, { width: 20 }
             ];
-            
+
             XLSX.utils.book_append_sheet(wb, ws2, 'تفاصيل الطلاب');
-            
+
             // Save file
             const fileName = `students_statistics_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, fileName);
-            
+
             showStatus(`تم تصدير إحصائيات ${totalStudents} طالب إلى Excel بنجاح`, 'success');
         }
 
@@ -5384,20 +5524,20 @@
             if (existingStatus) {
                 existingStatus.remove();
             }
-            
+
             // Create new status message
             const statusDiv = document.createElement('div');
             statusDiv.className = `status-message ${type}`;
             statusDiv.textContent = message;
-            
+
             // Add to page
             document.body.appendChild(statusDiv);
-            
+
             // Show message
             setTimeout(() => {
                 statusDiv.classList.add('show');
             }, 100);
-            
+
             // Hide message after 3 seconds
             setTimeout(() => {
                 statusDiv.classList.remove('show');
@@ -5412,18 +5552,18 @@
         // Show institute statistics with charts
         function showInstituteStatistics() {
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 showStatus('لا يوجد طلاب لعرض الإحصائيات', 'error');
                 return;
             }
-            
+
             // Calculate statistics by department
             const departmentStats = {};
             let totalPassed = 0;
             let totalFailed = 0;
             let totalStudents = students.length;
-            
+
             students.forEach(student => {
                 const dept = student.department || 'غير محدد';
                 if (!departmentStats[dept]) {
@@ -5435,17 +5575,17 @@
                         totalGPA: 0
                     };
                 }
-                
+
                 departmentStats[dept].total++;
-                
+
                 // Calculate student GPA
                 const studentGPA = parseFloat(calculateStudentGPA(student));
                 departmentStats[dept].totalGPA += studentGPA;
-                
+
                 // Check if student passed (new logic with "مطالب" rule)
                 const semesterStatus = calculateSemesterStatus(student);
                 const isPassed = semesterStatus.passed;
-                
+
                 if (isPassed) {
                     departmentStats[dept].passed++;
                     totalPassed++;
@@ -5454,14 +5594,14 @@
                     totalFailed++;
                 }
             });
-            
+
             // Calculate average GPA for each department
             Object.keys(departmentStats).forEach(dept => {
                 if (departmentStats[dept].total > 0) {
                     departmentStats[dept].avgGPA = (departmentStats[dept].totalGPA / departmentStats[dept].total).toFixed(2);
                 }
             });
-            
+
             // Create modal
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
@@ -5478,14 +5618,14 @@
                 z-index: 10000;
                 direction: rtl;
             `;
-            
+
             // Generate charts HTML
             let chartsHTML = '';
-            
+
             // Overall statistics
             const passRate = ((totalPassed / totalStudents) * 100).toFixed(1);
             const failRate = ((totalFailed / totalStudents) * 100).toFixed(1);
-            
+
             chartsHTML += `
                 <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                     <h3 style="color: #2c3e50; margin-bottom: 15px; text-align: center;">📊 إحصائيات المعهد الإجمالية</h3>
@@ -5545,7 +5685,7 @@
                     </div>
                 </div>
             `;
-            
+
             // Department statistics
             chartsHTML += `
                 <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -5565,12 +5705,12 @@
                             </thead>
                             <tbody>
             `;
-            
+
             Object.keys(departmentStats).forEach(dept => {
                 const stats = departmentStats[dept];
                 const deptPassRate = ((stats.passed / stats.total) * 100).toFixed(1);
                 const barWidth = (stats.passed / stats.total) * 100;
-                
+
                 chartsHTML += `
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 10px; border: none; text-align: center; font-weight: bold;">${dept}</td>
@@ -5587,14 +5727,14 @@
                     </tr>
                 `;
             });
-            
+
             chartsHTML += `
                             </tbody>
                         </table>
                     </div>
                 </div>
             `;
-            
+
             modal.innerHTML = `
                 <div style="background: white; padding: 30px; border-radius: 15px; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                     <div style="text-align: center; margin-bottom: 20px;">
@@ -5617,25 +5757,25 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
         }
 
         // Print institute statistics
         function printInstituteStatistics() {
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 showStatus('لا يوجد طلاب لطباعة إحصائياتهم', 'error');
                 return;
             }
-            
+
             // Calculate statistics by department
             const departmentStats = {};
             let totalPassed = 0;
             let totalFailed = 0;
             let totalStudents = students.length;
-            
+
             students.forEach(student => {
                 const dept = student.department || 'غير محدد';
                 if (!departmentStats[dept]) {
@@ -5647,17 +5787,17 @@
                         totalGPA: 0
                     };
                 }
-                
+
                 departmentStats[dept].total++;
-                
+
                 // Calculate student GPA
                 const studentGPA = parseFloat(calculateStudentGPA(student));
                 departmentStats[dept].totalGPA += studentGPA;
-                
+
                 // Check if student passed (new logic with "مطالب" rule)
                 const semesterStatus = calculateSemesterStatus(student);
                 const isPassed = semesterStatus.passed;
-                
+
                 if (isPassed) {
                     departmentStats[dept].passed++;
                     totalPassed++;
@@ -5666,17 +5806,17 @@
                     totalFailed++;
                 }
             });
-            
+
             // Calculate average GPA for each department
             Object.keys(departmentStats).forEach(dept => {
                 if (departmentStats[dept].total > 0) {
                     departmentStats[dept].avgGPA = (departmentStats[dept].totalGPA / departmentStats[dept].total).toFixed(2);
                 }
             });
-            
+
             const passRate = ((totalPassed / totalStudents) * 100).toFixed(1);
             const failRate = ((totalFailed / totalStudents) * 100).toFixed(1);
-            
+
             // Generate print content
             const printContent = `
                 <div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; height: 100vh; display: flex; flex-direction: column;">
@@ -5725,11 +5865,11 @@
                             </thead>
                             <tbody>
             `;
-            
+
             Object.keys(departmentStats).forEach(dept => {
                 const stats = departmentStats[dept];
                 const deptPassRate = ((stats.passed / stats.total) * 100).toFixed(1);
-                
+
                 printContent += `
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${dept}</td>
@@ -5741,7 +5881,7 @@
                     </tr>
                 `;
             });
-            
+
             printContent += `
                             </tbody>
                         </table>
@@ -5753,13 +5893,13 @@
                     </div>
                 </div>
             `;
-            
+
             // Print the content
             const originalContent = document.body.innerHTML;
             document.body.innerHTML = printContent;
             window.print();
             document.body.innerHTML = originalContent;
-            
+
             // Reload the page to restore functionality
             location.reload();
         }
@@ -5768,35 +5908,35 @@
         function addNewDepartment() {
             const nameInput = document.getElementById('newDepartmentName');
             const codeInput = document.getElementById('newDepartmentCode');
-            
+
             const name = nameInput.value.trim();
             const code = codeInput.value.trim().toUpperCase();
-            
+
             if (!name || !code) {
                 showStatus('يرجى إدخال اسم القسم والرمز', 'error');
                 return;
             }
-            
+
             if (code.length < 2 || code.length > 5) {
                 showStatus('رمز القسم يجب أن يكون بين 2 و 5 أحرف', 'error');
                 return;
             }
-            
+
             // Get existing departments
             let departments = JSON.parse(localStorage.getItem('departments')) || [];
-            
+
             // Check if department code already exists
             if (departments.find(dept => dept.code === code)) {
                 showStatus('رمز القسم هذا موجود بالفعل', 'error');
                 return;
             }
-            
+
             // Check if department name already exists
             if (departments.find(dept => dept.name === name)) {
                 showStatus('اسم القسم هذا موجود بالفعل', 'error');
                 return;
             }
-            
+
             // Add new department
             const newDepartment = {
                 id: Date.now().toString(),
@@ -5804,31 +5944,31 @@
                 code: code,
                 createdAt: new Date().toISOString()
             };
-            
+
             departments.push(newDepartment);
             localStorage.setItem('departments', JSON.stringify(departments));
-            
+
             // Clear inputs
             nameInput.value = '';
             codeInput.value = '';
-            
+
             // Refresh departments list
             displayDepartments();
-            
+
             showStatus(`تم إضافة القسم "${name}" بنجاح`, 'success');
         }
-        
+
         function displayDepartments() {
             const departments = JSON.parse(localStorage.getItem('departments')) || [];
             const container = document.getElementById('departmentsContainer');
-            
+
             if (departments.length === 0) {
                 container.innerHTML = '<p style="color: #666; text-align: center;">لا توجد أقسام مضافة بعد</p>';
                 return;
             }
-            
+
             let html = '<div style="display: grid; gap: 10px;">';
-            
+
             departments.forEach(dept => {
                 html += `
                     <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
@@ -5842,24 +5982,24 @@
                     </div>
                 `;
             });
-            
+
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function deleteDepartment(deptId) {
             if (!confirm('هل أنت متأكد من حذف هذا القسم؟')) {
                 return;
             }
-            
+
             let departments = JSON.parse(localStorage.getItem('departments')) || [];
             departments = departments.filter(dept => dept.id !== deptId);
             localStorage.setItem('departments', JSON.stringify(departments));
-            
+
             displayDepartments();
             showStatus('تم حذف القسم بنجاح', 'success');
         }
-        
+
         function getDepartmentName(code) {
             const departments = JSON.parse(localStorage.getItem('departments')) || [];
             const dept = departments.find(d => d.code === code);
@@ -5867,53 +6007,53 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Auto-focus on username field
             document.getElementById('username').focus();
-            
+
             // Load settings
             loadSettings();
-            
+
             // Load custom subjects
             loadCustomSubjects();
-            
+
             // Load departments
             displayDepartments();
-            
+
             // Update department select with custom departments
             updateDepartmentSelect();
-            
+
             // Load initial subjects if department is selected
             const department = document.getElementById('department').value;
             if (department) {
                 loadDepartmentSubjectsForGrid();
             }
-            
+
             // Add event listener for student ID input
-            document.getElementById('studentId').addEventListener('input', function() {
+            document.getElementById('studentId').addEventListener('input', function () {
                 if (this.value.length >= 7) {
                     autoLoadSubjectsFromId();
                 }
             });
         });
     </script>
-    
+
     <!-- Global Print Statistics Function -->
     <script>
         function printInstituteStatistics() {
             const students = JSON.parse(localStorage.getItem('students')) || [];
-            
+
             if (students.length === 0) {
                 alert('لا يوجد طلاب لطباعة إحصائياتهم');
                 return;
             }
-            
+
             // Calculate statistics by department
             const departmentStats = {};
             let totalPassed = 0;
             let totalFailed = 0;
             let totalStudents = students.length;
-            
+
             students.forEach(student => {
                 const dept = student.department || 'غير محدد';
                 if (!departmentStats[dept]) {
@@ -5925,13 +6065,13 @@
                         totalGPA: 0
                     };
                 }
-                
+
                 departmentStats[dept].total++;
-                
+
                 // Calculate student GPA
                 let totalUnits = 0;
                 let totalWeightedGrade = 0;
-                
+
                 if (student.subjects) {
                     student.subjects.forEach(subject => {
                         if (subject && typeof subject.total === 'number' && typeof subject.units === 'number') {
@@ -5940,14 +6080,14 @@
                         }
                     });
                 }
-                
+
                 const studentGPA = totalUnits > 0 ? (totalWeightedGrade / totalUnits).toFixed(2) : 0;
                 departmentStats[dept].totalGPA += parseFloat(studentGPA);
-                
+
                 // Check if student passed (new logic with "مطالب" rule)
                 const semesterStatus = calculateSemesterStatus(student);
                 const isPassed = semesterStatus.passed;
-                
+
                 if (isPassed) {
                     departmentStats[dept].passed++;
                     totalPassed++;
@@ -5956,20 +6096,20 @@
                     totalFailed++;
                 }
             });
-            
+
             // Calculate average GPA for each department
             Object.keys(departmentStats).forEach(dept => {
                 if (departmentStats[dept].total > 0) {
                     departmentStats[dept].avgGPA = (departmentStats[dept].totalGPA / departmentStats[dept].total).toFixed(2);
                 }
             });
-            
+
             const passRate = ((totalPassed / totalStudents) * 100).toFixed(1);
             const failRate = ((totalFailed / totalStudents) * 100).toFixed(1);
-            
+
             // Get current academic semester
             const currentSemester = localStorage.getItem('currentAcademicSemester') || 'الفصل الدراسي الحالي';
-            
+
             // Generate print content
             let printContent = `
                 <div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; height: 100vh; display: flex; flex-direction: column;">
@@ -6018,11 +6158,11 @@
                             </thead>
                             <tbody>
             `;
-            
+
             Object.keys(departmentStats).forEach(dept => {
                 const stats = departmentStats[dept];
                 const deptPassRate = ((stats.passed / stats.total) * 100).toFixed(1);
-                
+
                 printContent += `
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${dept}</td>
@@ -6034,7 +6174,7 @@
                     </tr>
                 `;
             });
-            
+
             printContent += `
                             </tbody>
                         </table>
@@ -6046,33 +6186,33 @@
                     </div>
                 </div>
             `;
-            
+
             // Print the content
             const originalContent = document.body.innerHTML;
             document.body.innerHTML = printContent;
             window.print();
             document.body.innerHTML = originalContent;
-            
+
             // Reload the page to restore functionality
             location.reload();
         }
-        
+
         // Make function globally available with multiple methods
         window.printInstituteStatistics = printInstituteStatistics;
         globalThis.printInstituteStatistics = printInstituteStatistics;
-        
+
         // Debug: Log that function is available globally
         console.log('printInstituteStatistics function is now available globally');
-        
+
         // Initialize on page load
-        window.onload = function() {
+        window.onload = function () {
             // Always show login screen first
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
-            
+
             // Load users first
             users = JSON.parse(localStorage.getItem('users')) || [];
-            
+
             // Create default admin user if no users exist
             if (users.length === 0) {
                 const defaultAdmin = {
@@ -6101,20 +6241,20 @@
                 users.push(defaultAdmin);
                 localStorage.setItem('users', JSON.stringify(users));
             }
-            
+
             // Load initial data
             loadAllStudents();
             updateStatistics();
             displayDepartments();
             loadRequiredSubjectRule();
-            
+
             // Check if user is already logged in - but don't auto-login
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 // Verify user still exists and is active
                 const activeUser = users.find(u => u.id === currentUser.id && u.status === 'active');
-                
+
                 if (activeUser) {
                     // Don't auto-login - just keep the session data for when user logs in manually
                     console.log('Session found but requiring manual login for security');
@@ -6125,6 +6265,110 @@
                 }
             }
         };
+
+        // Export Students as JSON
+        async function exportStudentsJSON() {
+            try {
+                if (typeof downloadDataAsJSON === 'function') {
+                    const success = await downloadDataAsJSON();
+                    if (success) {
+                        showStatus('✅ تم تصدير البيانات بنجاح! يمكنك الآن نقل الملف لأي جهاز آخر', 'success');
+                    }
+                } else {
+                    // Fallback to manual export
+                    const students = JSON.parse(localStorage.getItem('students')) || [];
+                    const exportData = {
+                        version: '1.0',
+                        exportDate: new Date().toISOString(),
+                        data: {
+                            students: students,
+                            blockedStudents: JSON.parse(localStorage.getItem('blockedStudents') || '[]'),
+                            departments: JSON.parse(localStorage.getItem('departments') || '[]'),
+                            customSubjects: JSON.parse(localStorage.getItem('customSubjects') || '{}')
+                        }
+                    };
+
+                    const jsonString = JSON.stringify(exportData, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `histjs-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    showStatus('✅ تم تصدير البيانات بنجاح!', 'success');
+                }
+            } catch (error) {
+                console.error('❌ Error exporting data:', error);
+                showStatus('❌ حدث خطأ أثناء تصدير البيانات', 'error');
+            }
+        }
+
+        // Import Students from JSON
+        async function importStudentsJSON() {
+            try {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+
+                input.onchange = async (e) => {
+                    try {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                            try {
+                                const jsonData = JSON.parse(event.target.result);
+
+                                // Import using helper if available
+                                if (typeof importData === 'function') {
+                                    await importData(jsonData);
+                                } else {
+                                    // Manual import
+                                    if (jsonData.data && jsonData.data.students) {
+                                        localStorage.setItem('students', JSON.stringify(jsonData.data.students));
+
+                                        if (jsonData.data.blockedStudents) {
+                                            localStorage.setItem('blockedStudents', JSON.stringify(jsonData.data.blockedStudents));
+                                        }
+                                        if (jsonData.data.departments) {
+                                            localStorage.setItem('departments', JSON.stringify(jsonData.data.departments));
+                                        }
+                                        if (jsonData.data.customSubjects) {
+                                            localStorage.setItem('customSubjects', JSON.stringify(jsonData.data.customSubjects));
+                                        }
+                                    }
+                                }
+
+                                // Reload the student list
+                                loadAllStudents();
+                                updateStatistics();
+
+                                showStatus('✅ تم استيراد البيانات بنجاح!', 'success');
+                            } catch (error) {
+                                console.error('❌ Error parsing JSON:', error);
+                                showStatus('❌ خطأ في تنسيق الملف. يرجى اختيار ملف JSON صحيح', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
+                    } catch (error) {
+                        console.error('❌ Error reading file:', error);
+                        showStatus('❌ حدث خطأ أثناء قراءة الملف', 'error');
+                    }
+                };
+
+                input.click();
+            } catch (error) {
+                console.error('❌ Error importing data:', error);
+                showStatus('❌ حدث خطأ أثناء استيراد البيانات', 'error');
+            }
+        }
     </script>
 </body>
+
 </html>
